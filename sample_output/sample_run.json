@@ -1,0 +1,405 @@
+{
+  "app": "ProcureLens AI",
+  "rfp_run_id": "sample-demo-run",
+  "criteria_snapshot": [
+    {
+      "criterion_id": 1,
+      "name": "Technical Capability",
+      "max_score": 10,
+      "weight": 30
+    },
+    {
+      "criterion_id": 2,
+      "name": "Implementation Plan",
+      "max_score": 10,
+      "weight": 20
+    },
+    {
+      "criterion_id": 3,
+      "name": "Commercial Value",
+      "max_score": 10,
+      "weight": 20
+    },
+    {
+      "criterion_id": 4,
+      "name": "Security & Compliance",
+      "max_score": 10,
+      "weight": 20
+    },
+    {
+      "criterion_id": 5,
+      "name": "Support & Experience",
+      "max_score": 10,
+      "weight": 10
+    }
+  ],
+  "ranking_policy": [
+    "ppi_desc",
+    "submission_date_asc",
+    "experience_desc",
+    "supplier_name_asc"
+  ],
+  "suppliers": [
+    {
+      "supplier_name": "NexaWorks",
+      "submission_date": "2026-09-29",
+      "experience_rating": 8.6,
+      "confirmed_non_compliant": false,
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "max_score": 10,
+          "weight": 30,
+          "score": 8.5,
+          "benchmark": 9.0,
+          "gap": -0.5,
+          "relative_percent": 94.44444444444444,
+          "absolute_contribution": 25.5,
+          "ppi_contribution": 28.333333333333336
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "max_score": 10,
+          "weight": 20,
+          "score": 9,
+          "benchmark": 9.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 18.0,
+          "ppi_contribution": 20.0
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8,
+          "benchmark": 8.5,
+          "gap": -0.5,
+          "relative_percent": 94.11764705882352,
+          "absolute_contribution": 16.0,
+          "ppi_contribution": 18.823529411764707
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8,
+          "benchmark": 10.0,
+          "gap": -2.0,
+          "relative_percent": 80.0,
+          "absolute_contribution": 16.0,
+          "ppi_contribution": 16.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "max_score": 10,
+          "weight": 10,
+          "score": 9,
+          "benchmark": 9.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 9.0,
+          "ppi_contribution": 10.0
+        }
+      ],
+      "absolute_score": 84.5,
+      "ppi": 93.15686274509804,
+      "final_rank": 1
+    },
+    {
+      "supplier_name": "Apex Systems",
+      "submission_date": "2026-09-28",
+      "experience_rating": 9.1,
+      "confirmed_non_compliant": false,
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "max_score": 10,
+          "weight": 30,
+          "score": 9,
+          "benchmark": 9.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 27.0,
+          "ppi_contribution": 30.0
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8,
+          "benchmark": 9.0,
+          "gap": -1.0,
+          "relative_percent": 88.88888888888889,
+          "absolute_contribution": 16.0,
+          "ppi_contribution": 17.77777777777778
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "max_score": 10,
+          "weight": 20,
+          "score": 6.5,
+          "benchmark": 8.5,
+          "gap": -2.0,
+          "relative_percent": 76.47058823529412,
+          "absolute_contribution": 13.0,
+          "ppi_contribution": 15.294117647058824
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "max_score": 10,
+          "weight": 20,
+          "score": 9.5,
+          "benchmark": 10.0,
+          "gap": -0.5,
+          "relative_percent": 95.0,
+          "absolute_contribution": 19.0,
+          "ppi_contribution": 19.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "max_score": 10,
+          "weight": 10,
+          "score": 9,
+          "benchmark": 9.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 9.0,
+          "ppi_contribution": 10.0
+        }
+      ],
+      "absolute_score": 84.0,
+      "ppi": 92.0718954248366,
+      "final_rank": 2
+    },
+    {
+      "supplier_name": "LumenForge AI",
+      "submission_date": "2026-09-30",
+      "experience_rating": 7.4,
+      "confirmed_non_compliant": false,
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "max_score": 10,
+          "weight": 30,
+          "score": 9,
+          "benchmark": 9.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 27.0,
+          "ppi_contribution": 30.0
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8,
+          "benchmark": 9.0,
+          "gap": -1.0,
+          "relative_percent": 88.88888888888889,
+          "absolute_contribution": 16.0,
+          "ppi_contribution": 17.77777777777778
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8.5,
+          "benchmark": 8.5,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 17.0,
+          "ppi_contribution": 20.0
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "max_score": 10,
+          "weight": 20,
+          "score": 7,
+          "benchmark": 10.0,
+          "gap": -3.0,
+          "relative_percent": 70.0,
+          "absolute_contribution": 14.0,
+          "ppi_contribution": 14.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "max_score": 10,
+          "weight": 10,
+          "score": 6.5,
+          "benchmark": 9.0,
+          "gap": -2.5,
+          "relative_percent": 72.22222222222221,
+          "absolute_contribution": 6.5,
+          "ppi_contribution": 7.222222222222221
+        }
+      ],
+      "absolute_score": 80.5,
+      "ppi": 89.0,
+      "final_rank": 3
+    },
+    {
+      "supplier_name": "Orbit Digital",
+      "submission_date": "2026-09-27",
+      "experience_rating": 8.8,
+      "confirmed_non_compliant": false,
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "max_score": 10,
+          "weight": 30,
+          "score": 8.5,
+          "benchmark": 9.0,
+          "gap": -0.5,
+          "relative_percent": 94.44444444444444,
+          "absolute_contribution": 25.5,
+          "ppi_contribution": 28.333333333333336
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8,
+          "benchmark": 9.0,
+          "gap": -1.0,
+          "relative_percent": 88.88888888888889,
+          "absolute_contribution": 16.0,
+          "ppi_contribution": 17.77777777777778
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "max_score": 10,
+          "weight": 20,
+          "score": 6,
+          "benchmark": 8.5,
+          "gap": -2.5,
+          "relative_percent": 70.58823529411765,
+          "absolute_contribution": 12.0,
+          "ppi_contribution": 14.11764705882353
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "max_score": 10,
+          "weight": 20,
+          "score": 8.5,
+          "benchmark": 10.0,
+          "gap": -1.5,
+          "relative_percent": 85.0,
+          "absolute_contribution": 17.0,
+          "ppi_contribution": 17.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "max_score": 10,
+          "weight": 10,
+          "score": 8.5,
+          "benchmark": 9.0,
+          "gap": -0.5,
+          "relative_percent": 94.44444444444444,
+          "absolute_contribution": 8.5,
+          "ppi_contribution": 9.444444444444445
+        }
+      ],
+      "absolute_score": 79.0,
+      "ppi": 86.6732026143791,
+      "final_rank": 4
+    },
+    {
+      "supplier_name": "Cobalt Ridge Solutions",
+      "submission_date": "2026-09-26",
+      "experience_rating": 8.4,
+      "confirmed_non_compliant": false,
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "max_score": 10,
+          "weight": 30,
+          "score": 7.5,
+          "benchmark": 9.0,
+          "gap": -1.5,
+          "relative_percent": 83.33333333333334,
+          "absolute_contribution": 22.5,
+          "ppi_contribution": 25.000000000000004
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "max_score": 10,
+          "weight": 20,
+          "score": 7,
+          "benchmark": 9.0,
+          "gap": -2.0,
+          "relative_percent": 77.77777777777779,
+          "absolute_contribution": 14.0,
+          "ppi_contribution": 15.555555555555557
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "max_score": 10,
+          "weight": 20,
+          "score": 7,
+          "benchmark": 8.5,
+          "gap": -1.5,
+          "relative_percent": 82.35294117647058,
+          "absolute_contribution": 14.0,
+          "ppi_contribution": 16.470588235294116
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "max_score": 10,
+          "weight": 20,
+          "score": 10,
+          "benchmark": 10.0,
+          "gap": 0.0,
+          "relative_percent": 100.0,
+          "absolute_contribution": 20.0,
+          "ppi_contribution": 20.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "max_score": 10,
+          "weight": 10,
+          "score": 8,
+          "benchmark": 9.0,
+          "gap": -1.0,
+          "relative_percent": 88.88888888888889,
+          "absolute_contribution": 8.0,
+          "ppi_contribution": 8.88888888888889
+        }
+      ],
+      "absolute_score": 78.5,
+      "ppi": 85.91503267973856,
+      "final_rank": 5
+    }
+  ],
+  "excluded_suppliers": [
+    {
+      "supplier_name": "BrightPath Tech",
+      "reason": "Confirmed mandatory certification failure"
+    }
+  ]
+}

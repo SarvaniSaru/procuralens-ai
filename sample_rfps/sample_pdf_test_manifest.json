@@ -1,0 +1,54 @@
+{
+  "app": "ProcuraLens AI",
+  "tagline": "See every proposal clearly. Score every supplier confidently.",
+  "documents": [
+    {
+      "file": "Apex_Systems_RFP.pdf",
+      "supplier": "Apex Systems",
+      "submission_date": "2026-09-28",
+      "experience_rating": 9.1,
+      "expected_scenario": "Strong all-round response; all knock-out evidence is explicit; premium price.",
+      "sha256": "e860e4a929428fb76fbe626688da216188894a936edb0302d0de969455e155fe"
+    },
+    {
+      "file": "BrightPath_Tech_RFP.pdf",
+      "supplier": "BrightPath Tech",
+      "submission_date": "2026-09-25",
+      "experience_rating": 6.0,
+      "expected_scenario": "Potential knock-out: mandatory security certification is not provided.",
+      "sha256": "4b7b282392939ccc3bace35f0e0b3003d54c40c44fecae2e48b36ef73d2d885b"
+    },
+    {
+      "file": "NexaWorks_RFP.pdf",
+      "supplier": "NexaWorks",
+      "submission_date": "2026-09-29",
+      "experience_rating": 8.6,
+      "expected_scenario": "Ambiguous knock-out: primary data is in India, but global backup wording requires Legal review.",
+      "sha256": "d13115a0a0e5ca91ee0d253ef792dd663e2387da2b14e4cababc24f6c0718f04"
+    },
+    {
+      "file": "Orbit_Digital_RFP.pdf",
+      "supplier": "Orbit Digital",
+      "submission_date": "2026-09-27",
+      "experience_rating": 8.8,
+      "expected_scenario": "Strong IT case, but Finance should adjust for unclear optional fees and price escalation.",
+      "sha256": "ae44a7cc7fc1421203ed9be4cda8cf608955dae1b9e3e5294a0540a337c12b4f"
+    },
+    {
+      "file": "Cobalt_Ridge_Solutions_RFP.pdf",
+      "supplier": "Cobalt Ridge Solutions",
+      "submission_date": "2026-09-26",
+      "experience_rating": 8.4,
+      "expected_scenario": "Excellent compliance evidence; exactly meets deadline; integration detail is incomplete.",
+      "sha256": "dc6f190f696631d76b66b7eca9cf56f39f1a7bd5a342d9ed9dab57a195e3e39d"
+    },
+    {
+      "file": "LumenForge_AI_RFP.pdf",
+      "supplier": "LumenForge AI",
+      "submission_date": "2026-09-30",
+      "experience_rating": 7.4,
+      "expected_scenario": "Near-tie test case; innovative evaluation, lower operating maturity, and missing recovery evidence.",
+      "sha256": "336d46eaf86db4d61de62df6ec4e52365ff6592372768afe11cdda55ec9dcb37"
+    }
+  ]
+}
