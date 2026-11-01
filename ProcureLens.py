@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import io
+import html
 import json
 import math
 import os
@@ -61,7 +62,7 @@ CSS = """
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 :root{--ink:#152238;--navy:#14213d;--teal:#0f8b8d;--cyan:#21b8c7;--gold:#e4aa3a;--violet:#6f5bd3;--bg:#f3f6fb;--card:#fff;--line:#dfe7f0;--muted:#66778d;--good:#2f936b;--warn:#d28a19;--bad:#c75050}
 html,body,[class*="css"]{font-family:'DM Sans',sans-serif}.stApp{background:radial-gradient(circle at 85% 0%,#e8f7f8 0,transparent 28%),var(--bg);color:var(--ink)}
-h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:-.025em}.block-container{padding-top:1rem!important;max-width:1420px;padding-bottom:3rem}
+h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:-.025em}.block-container{padding-top:3.75rem!important;max-width:1420px;padding-bottom:3rem}
 [data-testid="stSidebar"]{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-right:1px solid var(--line)}[data-testid="stSidebar"]>div:first-child{padding-top:.35rem!important}
 .brand-shell{display:flex;align-items:center;gap:.7rem;padding:.15rem 0 .8rem}.logo-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#102447,#087e91 58%,#21c7c7);box-shadow:0 8px 20px #147c8d38;display:grid;place-items:center;color:white;font-size:26px;border:2px solid #ffffff80}.brand-title{font-size:1.18rem;font-weight:800;color:var(--navy);line-height:1.05}.brand-sub{font-size:.72rem;color:var(--teal);margin-top:.2rem}
 .hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#102447 0%,#0f647b 55%,#18a9a8 100%);color:white;border-radius:22px;padding:1.65rem 2rem;margin-bottom:1rem;box-shadow:0 18px 45px #152b4a26}.hero:after{content:'';position:absolute;width:280px;height:280px;border:1px solid #fff3;border-radius:50%;right:-75px;top:-150px;box-shadow:0 0 0 34px #ffffff0a,0 0 0 68px #ffffff08}.hero h1{font-size:2.05rem;margin:0}.hero p{font-size:1rem;margin:.42rem 0 0;opacity:.91}
@@ -113,6 +114,7 @@ button[data-baseweb="tab"][aria-selected="true"]{color:var(--teal)}
 h2{font-weight:800;color:var(--navy)}
 h3{color:var(--navy)}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:9px}::-webkit-scrollbar-thumb:hover{background:#9fb3c8}
+.rubric-box{background:#fbf8ee;border:1px solid #f0e3b8;border-left:4px solid var(--gold);border-radius:10px;padding:.55rem .85rem;margin:.5rem 0;font-size:.92rem;color:#5b4a1c;white-space:pre-line;line-height:1.5}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -766,9 +768,9 @@ def page_sme() -> None:
                     d=criterion_detail(row); a,b=st.columns(2)
                     with a: st.markdown("#### Strengths"); pretty_bullets(d["strengths"],"bullet-good")
                     with b: st.markdown("#### Gaps"); pretty_bullets(d["gaps"],"bullet-gap")
-                    refs_ui(d["refs"]); st.caption(f"Rubric: {row['guidance']}")
+                    refs_ui(d["refs"]); st.markdown(f'<div class="rubric-box"><b>Scoring rubric</b><br>{html.escape(str(row["guidance"] or ""))}</div>',unsafe_allow_html=True)
                 with st.form(f"rev{area}{s['id']}{row['criterion_id']}"):
-                    c1,c2=st.columns([1,2]); new=c1.number_input("Reviewed score *",0.0,float(row["max_score"]),float(current if current is not None else row["proposed_score"]),.5,key=f"rv{area}{s['id']}{row['criterion_id']}"); reason=c2.selectbox("Reason *",reasons,key=f"rr{area}{s['id']}{row['criterion_id']}"); comment=st.text_area("Comment",key=f"rc{area}{s['id']}{row['criterion_id']}",height=65); save=st.form_submit_button("Save review")
+                    c1,c2,c3=st.columns([1,1.6,2.4]); new=c1.number_input("Reviewed score *",0.0,float(row["max_score"]),float(current if current is not None else row["proposed_score"]),.5,key=f"rv{area}{s['id']}{row['criterion_id']}"); reason=c2.selectbox("Reason *",reasons,key=f"rr{area}{s['id']}{row['criterion_id']}"); comment=c3.text_area("Comment",key=f"rc{area}{s['id']}{row['criterion_id']}",height=68,placeholder="Optional note for the audit trail"); save=st.form_submit_button("Save review",type="primary")
                 if save:
                     if not reviewer.strip(): st.error("Enter reviewer name.")
                     elif new!=row["proposed_score"] and (reason=="Approve AI score" or not comment.strip()): st.error("Choose an adjustment reason and enter a comment.")
