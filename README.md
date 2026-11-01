@@ -1,8 +1,8 @@
-# ProcureLens AI
+# ProcuraLens
 
-**See every proposal clearly. Score every supplier confidently.**
+**From proposal evidence to confident procurement decisions.**
 
-ProcureLens AI is a Streamlit classroom project for evidence-grounded PDF proposal evaluation, human review, deterministic peer benchmarking, and explainable supplier ranking.
+ProcuraLens is a Streamlit classroom project for evidence-grounded PDF proposal evaluation, human review, deterministic peer benchmarking, and explainable supplier ranking.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ streamlit run ProcureLens.py
 ```
 
 ## Demo Mode
-Demo Mode requires no API key and uses bundled fictional supplier proposals. Live AI Evaluation supports user-entered provider keys, including Cohere. Keys remain in session memory and are not stored.
+Demo Mode requires no API key and uses bundled fictional supplier proposals. Live AI Evaluation supports user-entered provider keys, including Cohere through the official Cohere V2 SDK. Keys remain in session memory and are not stored.
 
 ## Formulas
 - Absolute score: sum of `(approved score / maximum) * weight`.

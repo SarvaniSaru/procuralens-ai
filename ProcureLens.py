@@ -1,5 +1,5 @@
-"""ProcureLens AI
-See every proposal clearly. Score every supplier confidently.
+"""ProcuraLens
+From proposal evidence to confident procurement decisions.
 
 Single-file Streamlit application for PDF-only RFP evaluation.
 Run locally: streamlit run ProcureLens.py
@@ -34,7 +34,7 @@ except Exception:
     fitz = None
 
 APP_NAME = "ProcuraLens"
-TAGLINE = "See every proposal clearly. Score every supplier confidently."
+TAGLINE = "From proposal evidence to confident procurement decisions."
 APP_ROOT = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("PROCURELENS_DB", str(APP_ROOT / "data" / "procuralens.db")))
 SAMPLE_DIR = Path(__file__).resolve().parent / "sample_rfps"
@@ -43,25 +43,16 @@ CONSISTENCY_TEMPERATURE = 0.0
 MAX_FILE_MB = 25
 MAX_PAGES = 100
 SME_AREAS = ["IT", "Security", "Legal", "Finance", "Procurement"]
-PROVIDERS = ["OpenAI", "Azure OpenAI", "Anthropic", "Google Gemini", "Cohere", "Groq", "Custom OpenAI-compatible"]
+PROVIDERS = ["OpenAI", "Anthropic", "Google Gemini", "Cohere", "Groq", "Custom OpenAI-compatible"]
 MODEL_OPTIONS = {
-    "OpenAI": ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1"],
-    "Azure OpenAI": ["deployment-name"],
-    "Anthropic": ["claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
-    "Google Gemini": ["gemini-2.0-flash", "gemini-2.5-flash"],
-    "Cohere": ["command-r-plus", "command-r"],
+    "OpenAI": ["gpt-4.1-mini", "gpt-4.1", "gpt-4o-mini"],
+    "Anthropic": ["claude-sonnet-4-5", "claude-haiku-4-5"],
+    "Google Gemini": ["gemini-2.5-flash", "gemini-2.5-pro"],
+    "Cohere": ["command-a-plus-05-2026", "command-a-03-2025"],
     "Groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
     "Custom OpenAI-compatible": ["model-name"],
 }
-DEFAULT_MODELS = {
-    "OpenAI": "gpt-4o-mini",
-    "Azure OpenAI": "deployment-name",
-    "Anthropic": "claude-3-5-haiku-latest",
-    "Google Gemini": "gemini-2.0-flash",
-    "Cohere": "command-r-plus",
-    "Groq": "llama-3.3-70b-versatile",
-    "Custom OpenAI-compatible": "model-name",
-}
+DEFAULT_MODELS = {k: v[0] for k, v in MODEL_OPTIONS.items()}
 
 st.set_page_config(page_title=APP_NAME, page_icon="◈", layout="wide", initial_sidebar_state="expanded")
 
@@ -74,10 +65,17 @@ h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:
 [data-testid="stSidebar"]{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-right:1px solid var(--line)}[data-testid="stSidebar"]>div:first-child{padding-top:.35rem!important}
 .brand-shell{display:flex;align-items:center;gap:.7rem;padding:.15rem 0 .8rem}.logo-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#102447,#087e91 58%,#21c7c7);box-shadow:0 8px 20px #147c8d38;display:grid;place-items:center;color:white;font-size:26px;border:2px solid #ffffff80}.brand-title{font-size:1.18rem;font-weight:800;color:var(--navy);line-height:1.05}.brand-sub{font-size:.72rem;color:var(--teal);margin-top:.2rem}
 .hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#102447 0%,#0f647b 55%,#18a9a8 100%);color:white;border-radius:22px;padding:1.65rem 2rem;margin-bottom:1rem;box-shadow:0 18px 45px #152b4a26}.hero:after{content:'';position:absolute;width:280px;height:280px;border:1px solid #fff3;border-radius:50%;right:-75px;top:-150px;box-shadow:0 0 0 34px #ffffff0a,0 0 0 68px #ffffff08}.hero h1{font-size:2.05rem;margin:0}.hero p{font-size:1rem;margin:.42rem 0 0;opacity:.91}
-.workflow-card{height:166px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem;box-shadow:0 7px 22px #233d5d0b;display:flex;flex-direction:column;justify-content:space-between;margin:.35rem 0}.workflow-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px #233d5d18;border-color:#9bd4d8}.workflow-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:18px}.workflow-card h3{font-size:1rem;margin:.5rem 0 .25rem}.workflow-card p{font-size:.82rem;color:var(--muted);line-height:1.38;margin:0}.step-no{font-size:.68rem;font-weight:700;color:#8290a2;letter-spacing:.08em}
-.section-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem 1.1rem;margin:.65rem 0;box-shadow:0 6px 18px #1d39570a}.supplier-banner{background:linear-gradient(90deg,#edf7f8,#f6f4ff);border-left:5px solid var(--teal);border-radius:12px;padding:.75rem 1rem;margin:1rem 0 .65rem}.criterion-head{display:flex;justify-content:space-between;gap:1rem;align-items:center}.score-chip{background:#eaf6f6;color:#096d72;padding:.25rem .65rem;border-radius:999px;font-weight:700;font-size:.84rem}.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin:.55rem 0}.mini-stat{background:#f6f8fc;border:1px solid #e9eef5;border-radius:10px;padding:.45rem .55rem;font-size:.78rem;color:#607087}.mini-stat b{display:block;color:#21334d;font-size:.9rem}.bullet-good li::marker{color:var(--good)}.bullet-gap li::marker{color:var(--warn)}.reference-box{background:#f7f9fc;border-left:3px solid var(--violet);padding:.65rem .8rem;border-radius:8px;margin:.45rem 0;overflow-wrap:anywhere;word-break:normal;white-space:normal}.required{color:var(--bad);font-weight:800}
-.stepbar{background:#fff;border:1px solid var(--line);border-radius:13px;padding:.62rem .85rem;margin-bottom:.9rem;color:#64768b;font-size:.82rem;box-shadow:0 4px 14px #1c36530a}.stButton>button{border-radius:10px;font-weight:700}.stTextArea textarea{min-height:78px!important}.compact-comment textarea{min-height:58px!important}.stMetric{background:#fff;border:1px solid var(--line);padding:.55rem .7rem;border-radius:13px}.stMetric label{font-size:.76rem!important}.stMetric [data-testid="stMetricValue"]{font-size:1.16rem!important;font-family:'Manrope',sans-serif}div[data-testid="stExpander"]{background:#fff;border-radius:13px;border-color:var(--line)}
-[data-testid="stDataFrame"]{border:1px solid var(--line);border-radius:14px;overflow:hidden}.small-note{font-size:.8rem;color:var(--muted)}
+.workflow-card{height:166px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem;box-shadow:0 7px 22px #233d5d0b;display:flex;flex-direction:column;justify-content:space-between;margin:.35rem 0}.workflow-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px #233d5d18;border-color:#9bd4d8}.workflow-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:18px}.workflow-card h3{font-size:1.15rem;margin:.5rem 0 .25rem}.workflow-card p{font-size:.96rem;font-weight:500;color:var(--muted);line-height:1.5;margin:0}.step-no{font-size:.68rem;font-weight:700;color:#8290a2;letter-spacing:.08em}
+.section-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem 1.1rem;margin:.65rem 0;box-shadow:0 6px 18px #1d39570a}.supplier-banner{background:linear-gradient(90deg,#edf7f8,#f6f4ff);border-left:5px solid var(--teal);border-radius:12px;padding:.75rem 1rem;margin:1rem 0 .65rem}.criterion-head{display:flex;justify-content:space-between;gap:1rem;align-items:center}.score-chip{background:#eaf6f6;color:#096d72;padding:.25rem .65rem;border-radius:999px;font-weight:700;font-size:.94rem}.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin:.55rem 0}.mini-stat{background:#f6f8fc;border:1px solid #e9eef5;border-radius:10px;padding:.45rem .55rem;font-size:.9rem;color:#607087}.mini-stat b{display:block;color:#21334d;font-size:.9rem}.bullet-good li::marker{color:var(--good)}.bullet-gap li::marker{color:var(--warn)}.reference-box{background:#f7f9fc;border-left:3px solid var(--violet);padding:.65rem .8rem;border-radius:8px;margin:.45rem 0;overflow-wrap:anywhere;word-break:normal;white-space:normal}.required{color:var(--bad);font-weight:800}
+.stepbar{background:#fff;border:1px solid var(--line);border-radius:13px;padding:.62rem .85rem;margin-bottom:.9rem;color:#64768b;font-size:.94rem;box-shadow:0 4px 14px #1c36530a}.stButton>button{border-radius:10px;font-weight:700}.stTextArea textarea{min-height:78px!important}.compact-comment textarea{min-height:58px!important}.stMetric{background:#fff;border:1px solid var(--line);padding:.55rem .7rem;border-radius:13px}.stMetric label{font-size:.76rem!important}.stMetric [data-testid="stMetricValue"]{font-size:1.16rem!important;font-family:'Manrope',sans-serif}div[data-testid="stExpander"]{background:#fff;border-radius:13px;border-color:var(--line)}
+[data-testid="stDataFrame"]{border:1px solid var(--line);border-radius:14px;overflow:hidden}.small-note{font-size:.92rem;color:var(--muted)}
+.stMarkdown p,.stCaption,div[data-testid="stText"]{font-size:1rem!important;line-height:1.55}.stMarkdown li{font-size:1rem;line-height:1.55}
+[data-testid="stSidebar"] label{font-size:.96rem!important;font-weight:650!important;color:#243852!important}
+[data-testid="stSidebar"] div[role="radiogroup"] label{background:#f3f7fb;border:1px solid #e0e8f1;border-radius:10px;padding:.42rem .65rem;margin:.18rem 0;transition:.18s}
+[data-testid="stSidebar"] div[role="radiogroup"] label:hover{background:#eaf6f6;border-color:#9ed4d7;transform:translateX(2px)}
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked){background:linear-gradient(90deg,#e3f5f5,#eef1ff);border-color:#4ea7ad;color:#095e67!important}
+.stTextInput label,.stTextArea label,.stSelectbox label,.stNumberInput label,.stDateInput label,.stFileUploader label{font-size:1rem!important;font-weight:650!important}
+
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -198,11 +196,11 @@ def latest_run(project_id: str) -> Optional[sqlite3.Row]:
 def seed_defaults(project_id: str) -> None:
     if q("SELECT id FROM criteria WHERE project_id=?",(project_id,)): return
     defaults=[
-      ("Technical Capability","Architecture, integration, scalability, maintainability","IT",30,10,5,"0 no answer; 5 meets; 10 exceptional",0),
-      ("Implementation Plan","Timeline, milestones, staffing, delivery risks","IT",20,10,5,"0 absent; 5 credible; 10 detailed and evidenced",0),
-      ("Commercial Value","Pricing clarity, assumptions, total cost","Finance",20,10,5,"0 unclear; 5 acceptable; 10 excellent value",0),
-      ("Security & Compliance","Controls, privacy, certifications, auditability","Security",20,10,6,"0 unacceptable; 6 meets; 10 exceeds",1),
-      ("Support & Experience","Support model, similar projects, references","Procurement",10,10,5,"0 absent; 5 adequate; 10 proven",0),
+      ("Technical Capability","Architecture, integration, scalability, maintainability","IT",30,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
+      ("Implementation Plan","Timeline, milestones, staffing, delivery risks","IT",20,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
+      ("Commercial Value","Pricing clarity, assumptions, total cost","Finance",20,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
+      ("Security & Compliance","Controls, privacy, certifications, auditability","Security",20,10,6,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",1),
+      ("Support & Experience","Support model, similar projects, references","Procurement",10,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
     ]
     con=db()
     con.executemany("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",[(project_id,*r) for r in defaults])
@@ -274,9 +272,6 @@ def call_llm(provider: str, key: str, model: str, system: str, user: str, endpoi
     if provider=="OpenAI": return openai_compatible("https://api.openai.com/v1/chat/completions",key,model,system,user)
     if provider=="Groq": return openai_compatible("https://api.groq.com/openai/v1/chat/completions",key,model,system,user)
     if provider=="Custom OpenAI-compatible": return openai_compatible(endpoint.rstrip("/")+"/chat/completions",key,model,system,user)
-    if provider=="Azure OpenAI":
-        url=f"{endpoint.rstrip('/')}/openai/deployments/{model}/chat/completions?api-version={azure_version}"
-        return openai_compatible(url,key,model,system,user,{"api-key":key})
     if provider=="Anthropic":
         payload={"model":model,"max_tokens":5000,"temperature":CONSISTENCY_TEMPERATURE,"system":system,"messages":[{"role":"user","content":user}]}
         r=requests.post("https://api.anthropic.com/v1/messages",headers={"x-api-key":key,"anthropic-version":"2023-06-01","content-type":"application/json"},json=payload,timeout=120); r.raise_for_status()
@@ -286,9 +281,16 @@ def call_llm(provider: str, key: str, model: str, system: str, user: str, endpoi
         payload={"systemInstruction":{"parts":[{"text":system}]},"contents":[{"parts":[{"text":user}]}],"generationConfig":{"temperature":CONSISTENCY_TEMPERATURE,"responseMimeType":"application/json"}}
         r=requests.post(url,json=payload,timeout=120); r.raise_for_status(); return r.json()["candidates"][0]["content"]["parts"][0]["text"]
     if provider=="Cohere":
-        payload={"model":model,"messages":[{"role":"system","content":system},{"role":"user","content":user}],"temperature":CONSISTENCY_TEMPERATURE,"response_format":{"type":"json_object"}}
-        r=requests.post("https://api.cohere.com/v2/chat",headers={"Authorization":f"Bearer {key}","Content-Type":"application/json"},json=payload,timeout=120); r.raise_for_status()
-        content=r.json().get("message",{}).get("content",[]); return "".join(x.get("text","") for x in content)
+        # Use Cohere's maintained V2 SDK rather than constructing the REST URL manually.
+        # This avoids endpoint-routing differences and returns the typed V2 response.
+        import cohere
+        client=cohere.ClientV2(api_key=key)
+        response=client.chat(
+            model=model,
+            messages=[{"role":"system","content":system},{"role":"user","content":user}],
+            temperature=CONSISTENCY_TEMPERATURE,
+        )
+        return "".join(getattr(part,"text","") for part in response.message.content)
     raise ValueError("Unsupported provider")
 
 
@@ -442,7 +444,13 @@ def score_rows(run_id: str, project_id: str) -> Tuple[List[dict],List[dict]]:
     return eligible,excluded
 
 # --------------------------- UI utilities ---------------------------
+def flash(message: str) -> None:
+    st.session_state["flash_message"] = message
+
+
 def title(text: str, subtitle: str="") -> None:
+    if st.session_state.get("flash_message"):
+        st.toast(st.session_state.pop("flash_message"), icon="✅")
     st.markdown(f"## {text}")
     if subtitle: st.caption(subtitle)
 
@@ -485,7 +493,7 @@ def page_home() -> None:
     c2.metric("Evaluation mode",st.session_state.get("mode","Demo Mode"))
     c3.metric("Latest run",run["id"] if run else "Not started")
     st.markdown("### Evaluation journey")
-    steps=[("01","⚙","Configure","Set criteria, weights, and mandatory rules.","#167d8d"),("02","⬆","Upload","Add PDF proposals and supplier metadata.","#6f5bd3"),("03","✦","Evaluate","Generate evidence-grounded AI scores.","#e0a12e"),("04","✓","Review","SMEs inspect, approve, or adjust scores.","#3c8d67"),("05","◆","Approve","Procurement confirms official outcomes.","#bf5b72"),("06","⌁","Compare","Explore ranking, radar, and compliance.","#3973c5")]
+    steps=[("01","1","Configure","Set criteria, weights, and mandatory rules.","#167d8d"),("02","2","Upload","Add PDF proposals and supplier metadata.","#6f5bd3"),("03","3","Evaluate","Generate evidence-grounded AI scores.","#e0a12e"),("04","4","Review","SMEs inspect, approve, or adjust scores.","#3c8d67"),("05","5","Approve","Procurement confirms official outcomes.","#bf5b72"),("06","6","Compare","Explore ranking, radar, and compliance.","#3973c5")]
     for start in (0,3):
         cols=st.columns(3)
         for col,(num,icon,head,body,color) in zip(cols,steps[start:start+3]):
@@ -494,27 +502,39 @@ def page_home() -> None:
 
 
 def page_setup() -> None:
-    title("Project Setup","Create a simple RFP workspace. Blind review is optional and alias-based."); stepbar()
+    title("Project Setup","Create a protected RFP workspace. Saved projects are read-only to preserve evaluation integrity."); stepbar()
     p=current_project()
+    creating=st.session_state.get("create_new_project",False) or p is None
+    if p and not creating:
+        st.info("This project already exists and is locked against editing. Create a new project if different setup details are required.")
+        st.dataframe(pd.DataFrame([{
+            "Project / RFP":p["name"],"Reference":p["reference"],"Category":p["category"],
+            "Owner":p["owner"],"Evaluation date":p["evaluation_date"],"Currency":p["currency"],"Status":p["status"]
+        }]),use_container_width=True,hide_index=True)
+        if st.button("Create New Project"):
+            st.session_state.create_new_project=True; st.rerun()
+        return
     with st.form("project_form"):
-        name=st.text_input("Project / RFP name *",value=p["name"] if p else "Enterprise IT Services RFP")
+        name=st.text_input("Project / RFP name *",value="")
         c1,c2=st.columns(2)
-        reference=c1.text_input("Reference number",value=p["reference"] if p else "RFP-2026-014")
-        category=c2.text_input("Procurement category",value=p["category"] if p else "IT Services")
-        description=st.text_area("Short description",value=p["description"] if p else "Evaluate supplier proposals for an AI-assisted procurement solution.")
+        reference=c1.text_input("Reference number *",value="")
+        category=c2.text_input("Procurement category *",value="")
+        description=st.text_area("Short description",value="",height=90)
         c1,c2,c3=st.columns(3)
-        owner=c1.text_input("Evaluation owner *",value=p["owner"] if p else "Procurement Evaluation Team")
-        evdate=c2.date_input("Evaluation date",value=date.fromisoformat(p["evaluation_date"]) if p and p["evaluation_date"] else date.today())
-        currency=c3.text_input("Currency",value=p["currency"] if p else "INR")
-        notes=st.text_area("Notes",value=p["notes"] if p else "")
+        owner=c1.text_input("Evaluation owner *",value="")
+        evdate=c2.date_input("Evaluation date *",value=date.today())
+        currency=c3.text_input("Currency *",value="INR")
+        notes=st.text_area("Notes",value="",height=70)
         save=st.form_submit_button("Save Project",type="primary")
     if save:
-        if not name.strip(): st.error("Project name is required."); return
-        pid=p["id"] if p else str(uuid.uuid4())
-        con=db()
-        con.execute("INSERT OR REPLACE INTO projects(id,name,reference,description,category,owner,evaluation_date,currency,notes,blind_mode,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-          (pid,name.strip(),reference,description,category,owner,evdate.isoformat(),currency,notes,0,p["status"] if p else "Draft",p["created_at"] if p else now_iso()))
-        con.commit(); con.close(); st.session_state.project_id=pid; seed_defaults(pid); audit(pid,None,"PROJECT_SAVED",name); st.success("Project saved."); st.rerun()
+        if not all(x.strip() for x in [name,reference,category,owner,currency]):
+            st.error("Complete every field marked with *."); return
+        duplicate=q("SELECT id FROM projects WHERE lower(name)=lower(?) OR lower(reference)=lower(?)",(name.strip(),reference.strip()))
+        if duplicate:
+            st.error("A project with this name or reference number already exists. Existing projects cannot be modified."); return
+        pid=str(uuid.uuid4())
+        con=db(); con.execute("INSERT INTO projects(id,name,reference,description,category,owner,evaluation_date,currency,notes,blind_mode,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",(pid,name.strip(),reference.strip(),description,category.strip(),owner.strip(),evdate.isoformat(),currency.strip(),notes,0,"Draft",now_iso())); con.commit(); con.close()
+        st.session_state.project_id=pid; st.session_state.create_new_project=False; seed_defaults(pid); audit(pid,None,"PROJECT_SAVED",name); flash("Project saved successfully."); st.rerun()
 
 
 def page_criteria() -> None:
@@ -528,16 +548,23 @@ def page_criteria() -> None:
                 name=st.text_input("Name",r["name"]); desc=st.text_area("Description",r["description"] or "")
                 c1,c2,c3=st.columns(3); area=c1.selectbox("SME area",SME_AREAS,index=SME_AREAS.index(r["area"]) if r["area"] in SME_AREAS else 0); weight=c2.number_input("Weight %",0.0,100.0,float(r["weight"]),.5); maximum=c3.number_input("Maximum score",1.0,100.0,float(r["max_score"]),1.0)
                 c1,c2,c3=st.columns(3); minimum=c1.number_input("Minimum acceptable",0.0,float(maximum),min(float(r["min_score"]),float(maximum)),.5); critical=c2.checkbox("Critical criterion",bool(r["critical"])); active=c3.checkbox("Active",bool(r["active"]))
-                guidance=st.text_area("Scoring guidance",r["guidance"] or "0 no answer; 5 meets; 10 exceptional")
+                guidance=st.text_area("Scoring guidance",r["guidance"] or "0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement")
                 a,b=st.columns([1,1]); update=a.form_submit_button("Update"); delete=b.form_submit_button("Delete")
             if update:
-                execute("UPDATE criteria SET name=?,description=?,area=?,weight=?,max_score=?,min_score=?,guidance=?,critical=?,active=? WHERE id=?",(name,desc,area,weight,maximum,minimum,guidance,int(critical),int(active),r["id"])); audit(p["id"],None,"CRITERION_UPDATED",name); st.rerun()
-            if delete: execute("DELETE FROM criteria WHERE id=?",(r["id"],)); st.rerun()
+                execute("UPDATE criteria SET name=?,description=?,area=?,weight=?,max_score=?,min_score=?,guidance=?,critical=?,active=? WHERE id=?",(name,desc,area,weight,maximum,minimum,guidance,int(critical),int(active),r["id"])); audit(p["id"],None,"CRITERION_UPDATED",name); flash("Criterion updated successfully."); st.rerun()
+            if delete: execute("DELETE FROM criteria WHERE id=?",(r["id"],)); flash("Criterion removed."); st.rerun()
     with st.expander("Add criterion"):
         with st.form("add_criterion"):
-            name=st.text_input("Criterion name *"); desc=st.text_area("Description"); c1,c2,c3=st.columns(3); area=c1.selectbox("SME area",SME_AREAS); weight=c2.number_input("Weight %",0.0,100.0,0.0,.5); maximum=c3.number_input("Maximum score",1.0,100.0,10.0)
-            guidance=st.text_input("Scoring guidance","0 no answer; 5 meets; 10 exceptional"); critical=st.checkbox("Critical criterion"); add=st.form_submit_button("Add criterion",type="primary")
-        if add and name.strip(): execute("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",(p["id"],name,desc,area,weight,maximum,0,guidance,int(critical))); st.rerun()
+            name=st.text_input("Criterion name *")
+            desc=st.text_area("Description *",height=80)
+            c1,c2,c3=st.columns(3)
+            area=c1.selectbox("SME area *",SME_AREAS)
+            weight=c2.number_input("Weight % *",0.0,100.0,0.0,.5)
+            maximum=c3.number_input("Maximum score *",1.0,100.0,10.0)
+            guidance=st.text_area("Scoring guidance *","0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",height=170)
+            critical=st.checkbox("Critical criterion",help="Critical criteria receive heightened review; mandatory rejection logic should be configured as a knock-out rule.")
+            add=st.form_submit_button("Add criterion",type="primary")
+        if add and name.strip(): execute("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",(p["id"],name,desc,area,weight,maximum,0,guidance,int(critical))); flash("Criterion added successfully."); st.rerun()
     st.markdown("### Mandatory Compliance / Knock-Out Rules")
     rules=q("SELECT * FROM knockout_rules WHERE project_id=? ORDER BY id",(p["id"],))
     for r in rules:
@@ -546,7 +573,7 @@ def page_criteria() -> None:
     with st.form("add_rule"):
         c1,c2=st.columns(2); rn=c1.text_input("Rule name *"); area=c2.selectbox("Responsible SME",SME_AREAS,key="rule_area")
         question=st.text_input("Mandatory question *"); expected=st.text_input("Expected answer/evidence *"); add=st.form_submit_button("Add rule")
-    if add and rn and question: execute("INSERT INTO knockout_rules(project_id,name,question,expected,area) VALUES(?,?,?,?,?)",(p["id"],rn,question,expected,area)); st.rerun()
+    if add and rn and question: execute("INSERT INTO knockout_rules(project_id,name,question,expected,area) VALUES(?,?,?,?,?)",(p["id"],rn,question,expected,area)); flash("Knock-out rule added successfully."); st.rerun()
 
 
 def load_bundled_samples(project_id: str) -> int:
@@ -587,7 +614,7 @@ def page_upload() -> None:
                         if q("SELECT id FROM suppliers WHERE project_id=? AND (name=? OR document_hash=?)",(p["id"],name,h)): raise ValueError("This supplier name or document already exists.")
                         existing=len(q("SELECT id FROM suppliers WHERE project_id=?",(p["id"],))); sid=str(uuid.uuid4())
                         execute("INSERT INTO suppliers(id,project_id,name,alias,submission_date,experience,notes,document_name,document_hash,pages,extracted_text) VALUES(?,?,?,?,?,?,?,?,?,?,?)",(sid,p["id"],name,f"Supplier {chr(65+existing%26)}",sub.isoformat(),exp,notes,u.name,h,pages,text))
-                        audit(p["id"],None,"PDF_ADDED",f"{name}: {pages} pages"); st.success(f"Added {name}: {pages} pages. {' '.join(warnings)}"); st.rerun()
+                        audit(p["id"],None,"PDF_ADDED",f"{name}: {pages} pages"); flash(f"{name} was validated and saved successfully."); st.rerun()
                     except Exception as exc: st.error(str(exc))
     rows=q("SELECT * FROM suppliers WHERE project_id=? ORDER BY name",(p["id"],))
     st.markdown("### Added suppliers")
@@ -628,7 +655,7 @@ def page_evaluate() -> None:
             except Exception as exc:
                 allwarn.append(f"{s['name']}: {exc}")
             progress.progress((i+1)/len(suppliers))
-        execute("UPDATE runs SET status='COMPLETED',completed_at=?,warning_json=? WHERE id=?",(now_iso(),json.dumps(allwarn),run_id)); audit(p["id"],run_id,"EVALUATION_COMPLETED",f"{len(suppliers)} suppliers"); status.success("Evaluation completed." if not allwarn else "Evaluation completed with warnings."); st.rerun()
+        execute("UPDATE runs SET status='COMPLETED',completed_at=?,warning_json=? WHERE id=?",(now_iso(),json.dumps(allwarn),run_id)); audit(p["id"],run_id,"EVALUATION_COMPLETED",f"{len(suppliers)} suppliers"); flash("AI evaluation completed successfully." if not allwarn else "AI evaluation completed with validation warnings."); st.rerun()
     run=latest_run(p["id"])
     if run:
         st.markdown(f"### Latest run · `{run['id'][:8]}` · {run['status']}")
@@ -689,7 +716,7 @@ def page_sme() -> None:
                 if save:
                     if not reviewer.strip(): st.error("Enter reviewer name.")
                     elif new!=row["proposed_score"] and (reason=="Approve AI score" or not comment.strip()): st.error("Choose an adjustment reason and enter a comment.")
-                    else: execute("INSERT INTO sme_reviews(run_id,supplier_id,criterion_id,reviewer,area,reviewed_score,reason,comment,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],reviewer,area,new,reason,comment,now_iso())); audit(p["id"],run["id"],"SME_REVIEW",f"{s['name']} {row['name']}: {new}"); st.rerun()
+                    else: execute("INSERT INTO sme_reviews(run_id,supplier_id,criterion_id,reviewer,area,reviewed_score,reason,comment,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],reviewer,area,new,reason,comment,now_iso())); audit(p["id"],run["id"],"SME_REVIEW",f"{s['name']} {row['name']}: {new}"); flash("SME review saved successfully."); st.rerun()
 
 
 def page_approval() -> None:
@@ -709,7 +736,7 @@ def page_approval() -> None:
             c1,c2,c3,c4=st.columns([1,1,1,2]); c1.metric("AI",f"{row['proposed_score']:g}"); c2.metric("SME",f"{sme:g}" if sme is not None else "—"); final=c3.number_input("Final score *",0.0,float(row["max_score"]),float(default),.5,key=f"av{s['id']}{row['criterion_id']}"); rationale=c4.text_input("Final rationale",key=f"ar{s['id']}{row['criterion_id']}"); save=st.form_submit_button("Approve score")
         if save:
             if not approver.strip(): st.error("Enter the approver name.")
-            else: execute("INSERT INTO final_approvals(run_id,supplier_id,criterion_id,approver,approved_score,rationale,created_at) VALUES(?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],approver,final,rationale,now_iso())); audit(p["id"],run["id"],"FINAL_APPROVAL",f"{s['name']} {row['name']}: {final}"); st.rerun()
+            else: execute("INSERT INTO final_approvals(run_id,supplier_id,criterion_id,approver,approved_score,rationale,created_at) VALUES(?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],approver,final,rationale,now_iso())); audit(p["id"],run["id"],"FINAL_APPROVAL",f"{s['name']} {row['name']}: {final}"); flash("Final score approved and saved."); st.rerun()
 
 
 def page_results() -> None:
@@ -764,7 +791,7 @@ def page_history() -> None:
 
 def page_help() -> None:
     st.markdown(f'<div class="hero"><h1>About {APP_NAME}</h1><p>{TAGLINE}</p></div>',unsafe_allow_html=True)
-    st.write("ProcureLens AI extracts evidence from supplier PDFs, proposes criterion scores, detects mandatory compliance concerns, supports SME review, and ranks eligible suppliers using deterministic Python rules. AI assists the decision; accountable humans approve it.")
+    st.write("ProcuraLens extracts evidence from supplier PDFs, proposes criterion scores, detects mandatory compliance concerns, supports SME review, and ranks eligible suppliers using deterministic Python rules. AI assists the decision; accountable humans approve it.")
     with st.expander("Quick Start",expanded=True):
         st.markdown("1. Create a project.\n2. Configure criteria, weights, rubrics, and knock-out rules.\n3. Upload supplier PDFs.\n4. Select Live AI Evaluation or Demo Mode.\n5. Run evaluation and inspect references.\n6. Complete SME review.\n7. Approve final scores.\n8. Review charts and ranking.")
     with st.expander("Scoring Method"):
@@ -792,9 +819,8 @@ with st.sidebar:
         model_options=MODEL_OPTIONS.get(st.session_state.provider,[DEFAULT_MODELS[st.session_state.provider]])
         st.session_state.model=st.selectbox("Model *",model_options,index=0,key=f"model_{st.session_state.provider}")
         st.session_state.api_key=st.text_input("API Key",type="password",value=st.session_state.get("api_key",""))
-        if st.session_state.provider in ("Azure OpenAI","Custom OpenAI-compatible"):
-            st.session_state.endpoint=st.text_input("API Endpoint",st.session_state.get("endpoint",""))
-        if st.session_state.provider=="Azure OpenAI": st.session_state.azure_version=st.text_input("API version",st.session_state.get("azure_version","2024-10-21"))
+        if st.session_state.provider=="Custom OpenAI-compatible":
+            st.session_state.endpoint=st.text_input("API Endpoint *",st.session_state.get("endpoint",""))
         if st.button("Test Connection"):
             if not st.session_state.api_key: st.error("Enter an API key.")
             else:
