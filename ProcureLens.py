@@ -105,8 +105,6 @@ h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:
 .stMetric{border-left:4px solid var(--teal);box-shadow:0 4px 14px #1c36530a;transition:box-shadow .18s}.stMetric:hover{box-shadow:0 8px 20px #1c365318}
 div[data-testid="stExpander"]{box-shadow:0 3px 10px #1c36530a;transition:box-shadow .18s,border-color .18s}div[data-testid="stExpander"]:hover{border-color:#9bd4d8;box-shadow:0 6px 16px #1c365314}
 div[data-testid="stForm"]{background:#fff;border:1px solid var(--line)!important;border-radius:15px;box-shadow:0 4px 14px #1c36530a}
-div[data-baseweb="input"],div[data-baseweb="select"]>div,.stTextArea textarea{border-radius:10px!important}
-div[data-baseweb="input"]:focus-within,.stTextArea textarea:focus{border-color:var(--teal)!important;box-shadow:0 0 0 2px #0f8b8d26!important}
 button[data-baseweb="tab"]{font-weight:600;font-family:'Manrope',sans-serif}
 button[data-baseweb="tab"][aria-selected="true"]{color:var(--teal)}
 [data-testid="stSidebar"] div[role="radiogroup"] label>div:first-child{display:none}
@@ -119,10 +117,9 @@ h3{color:var(--navy)}
 .rubric-box{background:#fbf8ee;border:1px solid #f0e3b8;border-left:4px solid var(--gold);border-radius:10px;padding:.55rem .85rem;margin:.5rem 0;font-size:.92rem;color:#5b4a1c;white-space:pre-line;line-height:1.5}
 
 /* ---- Outlines ---- */
-div[data-baseweb="input"],div[data-baseweb="textarea"],div[data-baseweb="select"]>div{border:1.5px solid #b4c3d6!important;background:#fff!important;border-radius:10px!important;box-shadow:0 1px 2px #1c36530d;transition:border-color .15s,box-shadow .15s}
-div[data-baseweb="base-input"]{border:none!important;background:transparent!important}
-div[data-baseweb="input"]:hover,div[data-baseweb="textarea"]:hover,div[data-baseweb="select"]>div:hover{border-color:#7cc7cb!important}
-div[data-baseweb="input"]:focus-within,div[data-baseweb="textarea"]:focus-within,div[data-baseweb="select"]>div:focus-within{border-color:var(--teal)!important;box-shadow:0 0 0 3px #0f8b8d24!important}
+.stApp [data-testid="stTextInput"]>div:last-of-type,.stApp [data-testid="stNumberInput"]>div:last-of-type,.stApp [data-testid="stTextArea"]>div:last-of-type,.stApp [data-testid="stSelectbox"]>div:last-of-type,.stApp [data-testid="stMultiSelect"]>div:last-of-type,.stApp [data-testid="stDateInput"]>div:last-of-type{border:1.5px solid #8fa3bb!important;border-radius:10px!important;background:#fff!important;box-shadow:0 1px 3px #1c365314!important;transition:border-color .15s,box-shadow .15s}
+.stApp [data-testid="stTextInput"]>div:last-of-type:hover,.stApp [data-testid="stNumberInput"]>div:last-of-type:hover,.stApp [data-testid="stTextArea"]>div:last-of-type:hover,.stApp [data-testid="stSelectbox"]>div:last-of-type:hover,.stApp [data-testid="stMultiSelect"]>div:last-of-type:hover,.stApp [data-testid="stDateInput"]>div:last-of-type:hover{border-color:#4fb3b8!important}
+.stApp [data-testid="stTextInput"]>div:last-of-type:focus-within,.stApp [data-testid="stNumberInput"]>div:last-of-type:focus-within,.stApp [data-testid="stTextArea"]>div:last-of-type:focus-within,.stApp [data-testid="stSelectbox"]>div:last-of-type:focus-within,.stApp [data-testid="stMultiSelect"]>div:last-of-type:focus-within,.stApp [data-testid="stDateInput"]>div:last-of-type:focus-within{border-color:var(--teal)!important;box-shadow:0 0 0 3px #0f8b8d26!important}
 .stTextArea textarea:focus{box-shadow:none!important}
 .stButton>button[kind="secondary"],.stFormSubmitButton>button[kind="secondary"]{border:1.5px solid #b4c3d6;background:#fff}
 div[data-testid="stForm"]{border:1.5px solid #c1cfe0!important}
