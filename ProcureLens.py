@@ -33,7 +33,7 @@ try:
 except Exception:
     fitz = None
 
-APP_NAME = "ProcureLens AI"
+APP_NAME = "ProcuraLens"
 TAGLINE = "See every proposal clearly. Score every supplier confidently."
 APP_ROOT = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("PROCURELENS_DB", str(APP_ROOT / "data" / "procuralens.db")))
@@ -44,6 +44,15 @@ MAX_FILE_MB = 25
 MAX_PAGES = 100
 SME_AREAS = ["IT", "Security", "Legal", "Finance", "Procurement"]
 PROVIDERS = ["OpenAI", "Azure OpenAI", "Anthropic", "Google Gemini", "Cohere", "Groq", "Custom OpenAI-compatible"]
+MODEL_OPTIONS = {
+    "OpenAI": ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1"],
+    "Azure OpenAI": ["deployment-name"],
+    "Anthropic": ["claude-3-5-haiku-latest", "claude-3-5-sonnet-latest"],
+    "Google Gemini": ["gemini-2.0-flash", "gemini-2.5-flash"],
+    "Cohere": ["command-r-plus", "command-r"],
+    "Groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
+    "Custom OpenAI-compatible": ["model-name"],
+}
 DEFAULT_MODELS = {
     "OpenAI": "gpt-4o-mini",
     "Azure OpenAI": "deployment-name",
@@ -54,33 +63,21 @@ DEFAULT_MODELS = {
     "Custom OpenAI-compatible": "model-name",
 }
 
-st.set_page_config(page_title=APP_NAME, page_icon="🔎", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title=APP_NAME, page_icon="◈", layout="wide", initial_sidebar_state="expanded")
 
 CSS = """
 <style>
-:root { --navy:#14213D; --teal:#137C8B; --bg:#F5F7FA; --success:#2E7D61; --warn:#E9A23B; --danger:#C84C4C; --text:#22313F; }
-.stApp { background: var(--bg); color: var(--text); }
-.block-container { padding-top: 1.4rem; max-width: 1450px; }
-[data-testid="stSidebar"] { background: #FFFFFF; border-right: 1px solid #E4E9EE; }
-.brand { padding: .2rem 0 .9rem 0; }
-.brand h1 { color:var(--navy); font-size:1.45rem; margin:0; letter-spacing:.02em; }
-.brand p { color:var(--teal); margin:.2rem 0 0 0; font-size:.88rem; }
-.hero { background:linear-gradient(135deg,#14213D,#137C8B); color:white; border-radius:18px; padding:2rem 2.2rem; margin-bottom:1.1rem; }
-.hero h1 { margin:0; font-size:2.25rem; }
-.hero p { margin:.55rem 0 0; opacity:.94; font-size:1.1rem; }
-.card { background:#fff; border:1px solid #E2E8EE; border-radius:14px; padding:1rem 1.1rem; box-shadow:0 3px 12px rgba(20,33,61,.05); margin-bottom:.8rem; }
-.card h3 { color:var(--navy); margin:.1rem 0 .5rem; }
-.muted { color:#667784; font-size:.9rem; }
-.pill { display:inline-block; border-radius:999px; padding:.22rem .65rem; background:#EAF4F5; color:#0E6672; font-size:.78rem; font-weight:650; margin-right:.3rem; }
-.pill-good { background:#E9F5EF; color:#23664E; }
-.pill-warn { background:#FFF4E1; color:#8A5A12; }
-.pill-bad { background:#FCEBEC; color:#9A3434; }
-.score { font-size:1.5rem; font-weight:750; color:var(--navy); }
-.stepbar { color:#526675; background:#fff; border:1px solid #E1E8ED; border-radius:12px; padding:.65rem .9rem; margin-bottom:1rem; font-size:.9rem; }
-.small-note { font-size:.82rem; color:#647581; }
-[data-testid="stMetric"] { background:#fff; border:1px solid #E1E8ED; padding:.65rem .8rem; border-radius:12px; }
-.stButton>button { border-radius:10px; font-weight:650; }
-div[data-testid="stExpander"] { background:#fff; border-radius:12px; }
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+:root{--ink:#152238;--navy:#14213d;--teal:#0f8b8d;--cyan:#21b8c7;--gold:#e4aa3a;--violet:#6f5bd3;--bg:#f3f6fb;--card:#fff;--line:#dfe7f0;--muted:#66778d;--good:#2f936b;--warn:#d28a19;--bad:#c75050}
+html,body,[class*="css"]{font-family:'DM Sans',sans-serif}.stApp{background:radial-gradient(circle at 85% 0%,#e8f7f8 0,transparent 28%),var(--bg);color:var(--ink)}
+h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:-.025em}.block-container{padding-top:1rem!important;max-width:1420px;padding-bottom:3rem}
+[data-testid="stSidebar"]{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-right:1px solid var(--line)}[data-testid="stSidebar"]>div:first-child{padding-top:.35rem!important}
+.brand-shell{display:flex;align-items:center;gap:.7rem;padding:.15rem 0 .8rem}.logo-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#102447,#087e91 58%,#21c7c7);box-shadow:0 8px 20px #147c8d38;display:grid;place-items:center;color:white;font-size:26px;border:2px solid #ffffff80}.brand-title{font-size:1.18rem;font-weight:800;color:var(--navy);line-height:1.05}.brand-sub{font-size:.72rem;color:var(--teal);margin-top:.2rem}
+.hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#102447 0%,#0f647b 55%,#18a9a8 100%);color:white;border-radius:22px;padding:1.65rem 2rem;margin-bottom:1rem;box-shadow:0 18px 45px #152b4a26}.hero:after{content:'';position:absolute;width:280px;height:280px;border:1px solid #fff3;border-radius:50%;right:-75px;top:-150px;box-shadow:0 0 0 34px #ffffff0a,0 0 0 68px #ffffff08}.hero h1{font-size:2.05rem;margin:0}.hero p{font-size:1rem;margin:.42rem 0 0;opacity:.91}
+.workflow-card{height:166px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem;box-shadow:0 7px 22px #233d5d0b;display:flex;flex-direction:column;justify-content:space-between;margin:.35rem 0}.workflow-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px #233d5d18;border-color:#9bd4d8}.workflow-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:18px}.workflow-card h3{font-size:1rem;margin:.5rem 0 .25rem}.workflow-card p{font-size:.82rem;color:var(--muted);line-height:1.38;margin:0}.step-no{font-size:.68rem;font-weight:700;color:#8290a2;letter-spacing:.08em}
+.section-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem 1.1rem;margin:.65rem 0;box-shadow:0 6px 18px #1d39570a}.supplier-banner{background:linear-gradient(90deg,#edf7f8,#f6f4ff);border-left:5px solid var(--teal);border-radius:12px;padding:.75rem 1rem;margin:1rem 0 .65rem}.criterion-head{display:flex;justify-content:space-between;gap:1rem;align-items:center}.score-chip{background:#eaf6f6;color:#096d72;padding:.25rem .65rem;border-radius:999px;font-weight:700;font-size:.84rem}.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin:.55rem 0}.mini-stat{background:#f6f8fc;border:1px solid #e9eef5;border-radius:10px;padding:.45rem .55rem;font-size:.78rem;color:#607087}.mini-stat b{display:block;color:#21334d;font-size:.9rem}.bullet-good li::marker{color:var(--good)}.bullet-gap li::marker{color:var(--warn)}.reference-box{background:#f7f9fc;border-left:3px solid var(--violet);padding:.65rem .8rem;border-radius:8px;margin:.45rem 0;overflow-wrap:anywhere;word-break:normal;white-space:normal}.required{color:var(--bad);font-weight:800}
+.stepbar{background:#fff;border:1px solid var(--line);border-radius:13px;padding:.62rem .85rem;margin-bottom:.9rem;color:#64768b;font-size:.82rem;box-shadow:0 4px 14px #1c36530a}.stButton>button{border-radius:10px;font-weight:700}.stTextArea textarea{min-height:78px!important}.compact-comment textarea{min-height:58px!important}.stMetric{background:#fff;border:1px solid var(--line);padding:.55rem .7rem;border-radius:13px}.stMetric label{font-size:.76rem!important}.stMetric [data-testid="stMetricValue"]{font-size:1.16rem!important;font-family:'Manrope',sans-serif}div[data-testid="stExpander"]{background:#fff;border-radius:13px;border-color:var(--line)}
+[data-testid="stDataFrame"]{border:1px solid var(--line);border-radius:14px;overflow:hidden}.small-note{font-size:.8rem;color:var(--muted)}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -182,6 +179,15 @@ def current_project() -> Optional[sqlite3.Row]:
     pid=st.session_state.get("project_id")
     rows=q("SELECT * FROM projects WHERE id=?",(pid,)) if pid else []
     return rows[0] if rows else None
+
+
+def next_run_id() -> str:
+    rows=q("SELECT id FROM runs")
+    nums=[]
+    for row in rows:
+        m=re.fullmatch(r"RUN-(\d+)", str(row["id"]))
+        if m: nums.append(int(m.group(1)))
+    return f"RUN-{(max(nums, default=0)+1):05d}"
 
 
 def latest_run(project_id: str) -> Optional[sqlite3.Row]:
@@ -446,15 +452,25 @@ def stepbar() -> None:
 
 
 def display_name(s: sqlite3.Row, project: sqlite3.Row, reveal: bool=False) -> str:
-    return s["name"] if not project["blind_mode"] or reveal else (s["alias"] or "Blind Supplier")
+    return s["name"]
+
+
+def pretty_bullets(items: List[str], css_class: str="bullet-good") -> None:
+    if not items:
+        st.caption("None listed")
+        return
+    html="".join(f"<li>{str(x)}</li>" for x in items)
+    st.markdown(f'<ul class="{css_class}">{html}</ul>',unsafe_allow_html=True)
 
 
 def refs_ui(refs: List[dict]) -> None:
-    if not refs: st.caption("No validated document reference was returned."); return
+    if not refs:
+        st.caption("No validated document reference was returned.")
+        return
     for ref in refs:
-        section=f" — {ref.get('section')}" if ref.get("section") else ""
-        st.markdown(f"**Page {ref.get('page')}**{section}")
-        if ref.get("evidence"): st.caption(f'“{ref.get("evidence")}”')
+        section=f" · {ref.get('section')}" if ref.get("section") else ""
+        evidence=str(ref.get("evidence", ""))
+        st.markdown(f'<div class="reference-box"><b>Page {ref.get("page")}{section}</b><br>{evidence}</div>',unsafe_allow_html=True)
 
 
 def criterion_detail(row: sqlite3.Row) -> dict:
@@ -463,33 +479,33 @@ def criterion_detail(row: sqlite3.Row) -> dict:
 # --------------------------- Pages ---------------------------
 def page_home() -> None:
     st.markdown(f'<div class="hero"><h1>{APP_NAME}</h1><p>{TAGLINE}</p></div>',unsafe_allow_html=True)
-    st.write("An AI-assisted RFP evaluation platform combining PDF evidence extraction, configurable criteria, mandatory compliance checks, SME review, procurement approval, and deterministic supplier ranking.")
-    c1,c2,c3=st.columns(3)
     p=current_project(); run=latest_run(p["id"]) if p else None
+    c1,c2,c3=st.columns(3)
     c1.metric("Current project",p["name"] if p else "Not created")
     c2.metric("Evaluation mode",st.session_state.get("mode","Demo Mode"))
-    c3.metric("Latest run",run["status"] if run else "Not started")
-    st.markdown("### How it works")
-    cols=st.columns(3)
-    steps=[("1","Configure","Create criteria, weights, rubrics, and mandatory rules."),("2","Upload","Add supplier PDFs and metadata."),("3","Evaluate","Generate evidence-grounded proposed scores."),("4","Review","SMEs approve or adjust AI results."),("5","Approve","Procurement confirms official scores."),("6","Compare","View ranking, radar plots, and history.")]
-    for i,(n,h,b) in enumerate(steps): cols[i%3].markdown(f'<div class="card"><span class="pill">STEP {n}</span><h3>{h}</h3><div class="muted">{b}</div></div>',unsafe_allow_html=True)
-    st.info("Use **Live AI Evaluation** with your own provider key, or choose **Demo Mode** to inspect the complete workflow without an external model call.")
+    c3.metric("Latest run",run["id"] if run else "Not started")
+    st.markdown("### Evaluation journey")
+    steps=[("01","⚙","Configure","Set criteria, weights, and mandatory rules.","#167d8d"),("02","⬆","Upload","Add PDF proposals and supplier metadata.","#6f5bd3"),("03","✦","Evaluate","Generate evidence-grounded AI scores.","#e0a12e"),("04","✓","Review","SMEs inspect, approve, or adjust scores.","#3c8d67"),("05","◆","Approve","Procurement confirms official outcomes.","#bf5b72"),("06","⌁","Compare","Explore ranking, radar, and compliance.","#3973c5")]
+    for start in (0,3):
+        cols=st.columns(3)
+        for col,(num,icon,head,body,color) in zip(cols,steps[start:start+3]):
+            col.markdown(f'<div class="workflow-card"><div><div class="workflow-icon" style="background:{color}">{icon}</div><h3>{head}</h3><p>{body}</p></div><span class="step-no">STEP {num}</span></div>',unsafe_allow_html=True)
+    st.info("Choose Live AI Evaluation with a provider key, or use Demo Mode for the complete no-key workflow.")
 
 
 def page_setup() -> None:
     title("Project Setup","Create a simple RFP workspace. Blind review is optional and alias-based."); stepbar()
     p=current_project()
     with st.form("project_form"):
-        name=st.text_input("Project / RFP name",value=p["name"] if p else "Enterprise IT Services RFP")
+        name=st.text_input("Project / RFP name *",value=p["name"] if p else "Enterprise IT Services RFP")
         c1,c2=st.columns(2)
         reference=c1.text_input("Reference number",value=p["reference"] if p else "RFP-2026-014")
         category=c2.text_input("Procurement category",value=p["category"] if p else "IT Services")
         description=st.text_area("Short description",value=p["description"] if p else "Evaluate supplier proposals for an AI-assisted procurement solution.")
         c1,c2,c3=st.columns(3)
-        owner=c1.text_input("Evaluation owner",value=p["owner"] if p else "Procurement Evaluation Team")
+        owner=c1.text_input("Evaluation owner *",value=p["owner"] if p else "Procurement Evaluation Team")
         evdate=c2.date_input("Evaluation date",value=date.fromisoformat(p["evaluation_date"]) if p and p["evaluation_date"] else date.today())
         currency=c3.text_input("Currency",value=p["currency"] if p else "INR")
-        blind=st.toggle("Blind Supplier Review",value=bool(p["blind_mode"]) if p else False,help="Shows stable aliases in SME screens. It does not redact identities inside PDFs.")
         notes=st.text_area("Notes",value=p["notes"] if p else "")
         save=st.form_submit_button("Save Project",type="primary")
     if save:
@@ -497,7 +513,7 @@ def page_setup() -> None:
         pid=p["id"] if p else str(uuid.uuid4())
         con=db()
         con.execute("INSERT OR REPLACE INTO projects(id,name,reference,description,category,owner,evaluation_date,currency,notes,blind_mode,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-          (pid,name.strip(),reference,description,category,owner,evdate.isoformat(),currency,notes,int(blind),p["status"] if p else "Draft",p["created_at"] if p else now_iso()))
+          (pid,name.strip(),reference,description,category,owner,evdate.isoformat(),currency,notes,0,p["status"] if p else "Draft",p["created_at"] if p else now_iso()))
         con.commit(); con.close(); st.session_state.project_id=pid; seed_defaults(pid); audit(pid,None,"PROJECT_SAVED",name); st.success("Project saved."); st.rerun()
 
 
@@ -519,7 +535,7 @@ def page_criteria() -> None:
             if delete: execute("DELETE FROM criteria WHERE id=?",(r["id"],)); st.rerun()
     with st.expander("Add criterion"):
         with st.form("add_criterion"):
-            name=st.text_input("Criterion name"); desc=st.text_area("Description"); c1,c2,c3=st.columns(3); area=c1.selectbox("SME area",SME_AREAS); weight=c2.number_input("Weight %",0.0,100.0,0.0,.5); maximum=c3.number_input("Maximum score",1.0,100.0,10.0)
+            name=st.text_input("Criterion name *"); desc=st.text_area("Description"); c1,c2,c3=st.columns(3); area=c1.selectbox("SME area",SME_AREAS); weight=c2.number_input("Weight %",0.0,100.0,0.0,.5); maximum=c3.number_input("Maximum score",1.0,100.0,10.0)
             guidance=st.text_input("Scoring guidance","0 no answer; 5 meets; 10 exceptional"); critical=st.checkbox("Critical criterion"); add=st.form_submit_button("Add criterion",type="primary")
         if add and name.strip(): execute("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",(p["id"],name,desc,area,weight,maximum,0,guidance,int(critical))); st.rerun()
     st.markdown("### Mandatory Compliance / Knock-Out Rules")
@@ -528,8 +544,8 @@ def page_criteria() -> None:
         c1,c2,c3,c4=st.columns([2,3,2,1]); c1.write(f"**{r['name']}**"); c2.write(r["question"]); c3.write(f"{r['area']} · {r['expected']}")
         if c4.button("Remove",key=f"krm{r['id']}"): execute("DELETE FROM knockout_rules WHERE id=?",(r["id"],)); st.rerun()
     with st.form("add_rule"):
-        c1,c2=st.columns(2); rn=c1.text_input("Rule name"); area=c2.selectbox("Responsible SME",SME_AREAS,key="rule_area")
-        question=st.text_input("Mandatory question"); expected=st.text_input("Expected answer/evidence"); add=st.form_submit_button("Add rule")
+        c1,c2=st.columns(2); rn=c1.text_input("Rule name *"); area=c2.selectbox("Responsible SME",SME_AREAS,key="rule_area")
+        question=st.text_input("Mandatory question *"); expected=st.text_input("Expected answer/evidence *"); add=st.form_submit_button("Add rule")
     if add and rn and question: execute("INSERT INTO knockout_rules(project_id,name,question,expected,area) VALUES(?,?,?,?,?)",(p["id"],rn,question,expected,area)); st.rerun()
 
 
@@ -559,11 +575,11 @@ def page_upload() -> None:
     if st.session_state.get("mode")=="Demo Mode":
         if st.button("Load Bundled Demo PDFs",type="primary"):
             n=load_bundled_samples(p["id"]); st.success(f"Loaded {n} new demo supplier(s)." if n else "Demo suppliers are already loaded or sample PDFs are not beside the app."); st.rerun()
-    uploaded=st.file_uploader("Supplier proposal PDFs",type=["pdf"],accept_multiple_files=True)
+    uploaded=st.file_uploader("Supplier proposal PDFs *",type=["pdf"],accept_multiple_files=True,help="PDF only · Multiple proposals · Maximum 25 MB per file")
     if uploaded:
         for idx,u in enumerate(uploaded):
             with st.expander(u.name,expanded=True):
-                c1,c2,c3=st.columns(3); name=c1.text_input("Supplier name",u.name.rsplit(".",1)[0].replace("_"," "),key=f"n{idx}{u.name}"); sub=c2.date_input("Submission date",key=f"d{idx}{u.name}"); exp=c3.number_input("Historical experience",0.0,10.0,7.0,.1,key=f"e{idx}{u.name}")
+                c1,c2,c3=st.columns(3); name=c1.text_input("Supplier name *",u.name.rsplit(".",1)[0].replace("_"," "),key=f"n{idx}{u.name}"); sub=c2.date_input("Submission date *",key=f"d{idx}{u.name}"); exp=c3.number_input("Historical experience",0.0,10.0,7.0,.1,key=f"e{idx}{u.name}")
                 notes=st.text_input("Notes",key=f"note{idx}{u.name}")
                 if st.button("Validate and add",key=f"add{idx}{u.name}"):
                     try:
@@ -590,7 +606,7 @@ def page_evaluate() -> None:
     mode=st.session_state.get("mode","Demo Mode")
     st.info("Demo Mode uses disclosed deterministic sample scoring and makes no external LLM request." if mode=="Demo Mode" else "Live mode sends extracted proposal text to the selected provider.")
     if st.button("Run Evaluation",type="primary"):
-        run_id=str(uuid.uuid4()); provider=st.session_state.get("provider",""); model=st.session_state.get("model","")
+        run_id=next_run_id(); provider=st.session_state.get("provider",""); model=st.session_state.get("model","")
         snapshot=json.dumps([dict(x) for x in criteria]); execute("INSERT INTO runs(id,project_id,created_at,mode,provider,model,status,criteria_snapshot) VALUES(?,?,?,?,?,?,?,?)",(run_id,p["id"],now_iso(),mode,provider,model,"RUNNING",snapshot)); st.session_state.run_id=run_id
         progress=st.progress(0); status=st.empty(); allwarn=[]
         for i,s in enumerate(suppliers):
@@ -619,76 +635,81 @@ def page_evaluate() -> None:
         warnings=json.loads(run["warning_json"] or "[]")
         if warnings:
             with st.expander(f"Validation warnings ({len(warnings)})"): st.write("\n".join(f"- {x}" for x in warnings))
-        for s in suppliers:
-            st.markdown(f"#### {display_name(s,p)}")
-            for row in q("SELECT a.*,c.name,c.area FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? ORDER BY c.id",(run["id"],s["id"])):
-                st.markdown(f"**{row['name']}** &nbsp; <span class='score'>{row['proposed_score']:g}/{row['max_score']:g}</span>",unsafe_allow_html=True); st.write(row["justification"])
-                with st.expander("View justification and evidence"):
-                    d=criterion_detail(row); st.markdown("**Strengths**"); st.write(d["strengths"] or ["None listed"]); st.markdown("**Gaps**"); st.write(d["gaps"] or ["None listed"]); st.markdown("**Document references**"); refs_ui(d["refs"]); st.caption(f"AI confidence: {row['confidence']:.0%}")
-            kos=q("SELECT k.*,r.name,r.area FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=?",(run["id"],s["id"]))
-            if kos:
-                with st.expander("Mandatory compliance results"):
-                    for k in kos: st.write(f"**{k['name']}** — {k['ai_result']} · {k['reasoning']}")
+        supplier_map={display_name(x,p):x for x in suppliers}
+        selected_name=st.selectbox("Select supplier *",list(supplier_map),key="eval_supplier")
+        s=supplier_map[selected_name]
+        st.markdown(f'<div class="supplier-banner"><b>{selected_name}</b><br><span class="small-note">Criterion-level AI evaluation and cited evidence</span></div>',unsafe_allow_html=True)
+        for row in q("SELECT a.*,c.name,c.area,c.weight FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? ORDER BY c.id",(run["id"],s["id"])):
+            st.markdown(f'<div class="section-card"><div class="criterion-head"><b>{row["name"]}</b><span class="score-chip">{row["proposed_score"]:g} / {row["max_score"]:g}</span></div><div class="small-note">{row["area"]} · Weight {row["weight"]:g}% · Confidence {row["confidence"]:.0%}</div><p>{row["justification"]}</p></div>',unsafe_allow_html=True)
+            with st.expander("View justification and evidence"):
+                d=criterion_detail(row)
+                a,b=st.columns(2)
+                with a: st.markdown("#### Strengths"); pretty_bullets(d["strengths"],"bullet-good")
+                with b: st.markdown("#### Gaps"); pretty_bullets(d["gaps"],"bullet-gap")
+                st.markdown("#### Document references"); refs_ui(d["refs"])
+        kos=q("SELECT k.*,r.name,r.area FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=?",(run["id"],s["id"]))
+        if kos:
+            st.markdown("### Mandatory compliance")
+            st.dataframe(pd.DataFrame([{"Rule":k["name"],"Area":k["area"],"AI result":k["ai_result"],"Reasoning":k["reasoning"]} for k in kos]),use_container_width=True,hide_index=True)
 
 
 def page_sme() -> None:
-    p=current_project(); title("SME Review","All SME sections are visible in this class-project version."); stepbar()
+    p=current_project(); title("SME Review","Review one supplier at a time across the visible business-unit sections."); stepbar()
     if not p: st.warning("Create a project first."); return
     run=latest_run(p["id"])
     if not run: st.warning("Run an evaluation first."); return
-    reviewer=st.text_input("Reviewer name",st.session_state.get("reviewer","")); st.session_state.reviewer=reviewer
-    suppliers=q("SELECT * FROM suppliers WHERE project_id=? ORDER BY name",(p["id"],)); tabs=st.tabs(SME_AREAS)
+    suppliers=q("SELECT * FROM suppliers WHERE project_id=? ORDER BY name",(p["id"],))
+    reviewer=st.text_input("Reviewer name *",st.session_state.get("reviewer","")); st.session_state.reviewer=reviewer
+    supplier_map={x["name"]:x for x in suppliers}; selected=st.selectbox("Select supplier *",list(supplier_map),key="sme_supplier"); s=supplier_map[selected]
+    st.markdown(f'<div class="supplier-banner"><b>{selected}</b><br><span class="small-note">Review AI scores, evidence, and mandatory compliance decisions</span></div>',unsafe_allow_html=True)
     reasons=["Approve AI score","Missed document evidence","Evidence interpreted incorrectly","Score does not match rubric","Insufficient evidence","Important business context missing","Compliance concern","Other"]
+    tabs=st.tabs(SME_AREAS)
     for area,tab in zip(SME_AREAS,tabs):
         with tab:
-            for s in suppliers:
-                st.markdown(f"### {display_name(s,p)}")
-                # Knock-out review for this area
-                for k in q("SELECT k.*,r.name,r.expected FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=? AND r.area=?",(run["id"],s["id"],area)):
-                    if k["ai_result"]!="PASS" or k["reviewer_decision"]:
-                        st.warning(f"{k['name']}: {k['ai_result']} — {k['reasoning']}")
-                        refs_ui(json.loads(k["references_json"] or "[]"))
-                        with st.form(f"ko{k['id']}"):
-                            dec=st.radio("Decision",["Confirm Non-Compliance","Override - Compliant"],horizontal=True,key=f"dec{k['id']}"); com=st.text_area("Reviewer comment",key=f"kc{k['id']}"); save=st.form_submit_button("Save compliance review")
-                        if save:
-                            if not reviewer.strip() or not com.strip(): st.error("Reviewer name and comment are required.")
-                            else: execute("UPDATE knockout_results SET reviewer=?,reviewer_decision=?,reviewer_comment=?,reviewed_at=? WHERE id=?",(reviewer,dec,com,now_iso(),k["id"])); audit(p["id"],run["id"],"KNOCKOUT_REVIEW",f"{s['name']}: {k['name']} -> {dec}"); st.rerun()
-                rows=q("SELECT a.*,c.name,c.guidance,c.area FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? AND c.area=? ORDER BY c.id",(run["id"],s["id"],area))
-                for row in rows:
-                    current=latest_review(run["id"],s["id"],row["criterion_id"])
-                    st.markdown(f"**{row['name']}** — AI: **{row['proposed_score']:g}/{row['max_score']:g}**" + (f" · SME: **{current:g}**" if current is not None else "")); st.write(row["justification"])
-                    with st.expander("View justification and evidence"): d=criterion_detail(row); st.write("Strengths",d["strengths"]); st.write("Gaps",d["gaps"]); refs_ui(d["refs"]); st.caption(f"Rubric: {row['guidance']}")
-                    with st.form(f"rev{area}{s['id']}{row['criterion_id']}"):
-                        new=st.number_input("Reviewed score",0.0,float(row["max_score"]),float(current if current is not None else row["proposed_score"]),.5,key=f"rv{area}{s['id']}{row['criterion_id']}"); reason=st.selectbox("Reason",reasons,key=f"rr{area}{s['id']}{row['criterion_id']}"); comment=st.text_area("Comment",key=f"rc{area}{s['id']}{row['criterion_id']}"); save=st.form_submit_button("Save review")
+            for k in q("SELECT k.*,r.name,r.expected FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=? AND r.area=?",(run["id"],s["id"],area)):
+                if k["ai_result"]!="PASS" or k["reviewer_decision"]:
+                    st.markdown(f'<div class="section-card"><b>{k["name"]}</b> <span class="score-chip">{k["ai_result"]}</span><p>{k["reasoning"]}</p></div>',unsafe_allow_html=True); refs_ui(json.loads(k["references_json"] or "[]"))
+                    with st.form(f"ko{k['id']}"):
+                        dec=st.radio("Decision *",["Confirm Non-Compliance","Override - Compliant"],horizontal=True,key=f"dec{k['id']}"); com=st.text_area("Reviewer comment *",key=f"kc{k['id']}",height=70); save=st.form_submit_button("Save compliance review")
                     if save:
-                        if not reviewer.strip(): st.error("Enter reviewer name.")
-                        elif new!=row["proposed_score"] and (reason=="Approve AI score" or not comment.strip()): st.error("Choose an adjustment reason and enter a comment.")
-                        else: execute("INSERT INTO sme_reviews(run_id,supplier_id,criterion_id,reviewer,area,reviewed_score,reason,comment,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],reviewer,area,new,reason,comment,now_iso())); audit(p["id"],run["id"],"SME_REVIEW",f"{s['name']} {row['name']}: {new}"); st.rerun()
+                        if not reviewer.strip() or not com.strip(): st.error("Reviewer name and comment are required.")
+                        else: execute("UPDATE knockout_results SET reviewer=?,reviewer_decision=?,reviewer_comment=?,reviewed_at=? WHERE id=?",(reviewer,dec,com,now_iso(),k["id"])); audit(p["id"],run["id"],"KNOCKOUT_REVIEW",f"{s['name']}: {k['name']} -> {dec}"); st.rerun()
+            rows=q("SELECT a.*,c.name,c.guidance,c.area,c.weight FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? AND c.area=? ORDER BY c.id",(run["id"],s["id"],area))
+            if not rows: st.info(f"No criteria are assigned to {area}.")
+            for row in rows:
+                current=latest_review(run["id"],s["id"],row["criterion_id"])
+                st.markdown(f'<div class="section-card"><div class="criterion-head"><b>{row["name"]}</b><span class="score-chip">AI {row["proposed_score"]:g}/{row["max_score"]:g}</span></div><div class="small-note">Weight {row["weight"]:g}% · Current SME score {current if current is not None else "Not reviewed"}</div><p>{row["justification"]}</p></div>',unsafe_allow_html=True)
+                with st.expander("View justification and evidence"):
+                    d=criterion_detail(row); a,b=st.columns(2)
+                    with a: st.markdown("#### Strengths"); pretty_bullets(d["strengths"],"bullet-good")
+                    with b: st.markdown("#### Gaps"); pretty_bullets(d["gaps"],"bullet-gap")
+                    refs_ui(d["refs"]); st.caption(f"Rubric: {row['guidance']}")
+                with st.form(f"rev{area}{s['id']}{row['criterion_id']}"):
+                    c1,c2=st.columns([1,2]); new=c1.number_input("Reviewed score *",0.0,float(row["max_score"]),float(current if current is not None else row["proposed_score"]),.5,key=f"rv{area}{s['id']}{row['criterion_id']}"); reason=c2.selectbox("Reason *",reasons,key=f"rr{area}{s['id']}{row['criterion_id']}"); comment=st.text_area("Comment",key=f"rc{area}{s['id']}{row['criterion_id']}",height=65); save=st.form_submit_button("Save review")
+                if save:
+                    if not reviewer.strip(): st.error("Enter reviewer name.")
+                    elif new!=row["proposed_score"] and (reason=="Approve AI score" or not comment.strip()): st.error("Choose an adjustment reason and enter a comment.")
+                    else: execute("INSERT INTO sme_reviews(run_id,supplier_id,criterion_id,reviewer,area,reviewed_score,reason,comment,created_at) VALUES(?,?,?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],reviewer,area,new,reason,comment,now_iso())); audit(p["id"],run["id"],"SME_REVIEW",f"{s['name']} {row['name']}: {new}"); st.rerun()
 
 
 def page_approval() -> None:
-    p=current_project(); title("Final Approval","Procurement-approved scores become the official values."); stepbar()
+    p=current_project(); title("Final Approval","Confirm the official procurement score for one supplier at a time."); stepbar()
     if not p: st.warning("Create a project first."); return
     run=latest_run(p["id"])
     if not run: st.warning("Run an evaluation first."); return
-    approver=st.text_input("Procurement approver name")
-    reveal=st.toggle("Reveal supplier identities",value=not bool(p["blind_mode"]),disabled=not bool(p["blind_mode"]))
-    for s in q("SELECT * FROM suppliers WHERE project_id=? ORDER BY name",(p["id"],)):
-        st.markdown(f"### {display_name(s,p,reveal)}")
-        kos=q("SELECT k.*,r.name FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=? AND k.ai_result!='PASS'",(run["id"],s["id"]))
-        for k in kos:
-            status=k["reviewer_decision"] or "Pending SME Review"; st.write(f"**{k['name']}**: {status}")
-        for row in q("SELECT a.*,c.name FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? ORDER BY c.id",(run["id"],s["id"])):
-            sme=latest_review(run["id"],s["id"],row["criterion_id"]); approved=latest_approval(run["id"],s["id"],row["criterion_id"]); default=approved if approved is not None else sme if sme is not None else row["proposed_score"]
-            with st.form(f"ap{s['id']}{row['criterion_id']}"):
-                c1,c2,c3=st.columns([2,1,1]); c1.write(f"**{row['name']}**"); c2.metric("AI",f"{row['proposed_score']:g}"); c3.metric("SME",f"{sme:g}" if sme is not None else "Not reviewed")
-                final=st.number_input("Approved score",0.0,float(row["max_score"]),float(default),.5,key=f"av{s['id']}{row['criterion_id']}"); rationale=st.text_input("Final rationale",key=f"ar{s['id']}{row['criterion_id']}"); save=st.form_submit_button("Approve score")
-            if save:
-                if not approver.strip(): st.error("Enter the approver name.")
-                else:
-                    execute("INSERT INTO final_approvals(run_id,supplier_id,criterion_id,approver,approved_score,rationale,created_at) VALUES(?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],approver,final,rationale,now_iso()))
-                    if final!=row["proposed_score"]: execute("INSERT INTO feedback_examples(project_id,criterion_name,ai_score,final_score,reason,comment,approved,created_at) VALUES(?,?,?,?,?,?,1,?)",(p["id"],row["name"],row["proposed_score"],final,"Procurement adjustment",rationale,now_iso()))
-                    audit(p["id"],run["id"],"FINAL_APPROVAL",f"{s['name']} {row['name']}: {final}"); st.rerun()
+    approver=st.text_input("Procurement approver name *")
+    suppliers=q("SELECT * FROM suppliers WHERE project_id=? ORDER BY name",(p["id"],)); supplier_map={x["name"]:x for x in suppliers}; selected=st.selectbox("Select supplier *",list(supplier_map),key="approval_supplier"); s=supplier_map[selected]
+    st.markdown(f'<div class="supplier-banner"><b>{selected}</b><br><span class="small-note">Final review and procurement approval</span></div>',unsafe_allow_html=True)
+    kos=q("SELECT k.*,r.name FROM knockout_results k JOIN knockout_rules r ON r.id=k.rule_id WHERE k.run_id=? AND k.supplier_id=? AND k.ai_result!='PASS'",(run["id"],s["id"]))
+    if kos: st.dataframe(pd.DataFrame([{"Rule":k["name"],"AI result":k["ai_result"],"SME decision":k["reviewer_decision"] or "Pending"} for k in kos]),use_container_width=True,hide_index=True)
+    for row in q("SELECT a.*,c.name,c.weight FROM ai_scores a JOIN criteria c ON c.id=a.criterion_id WHERE a.run_id=? AND a.supplier_id=? ORDER BY c.id",(run["id"],s["id"])):
+        sme=latest_review(run["id"],s["id"],row["criterion_id"]); approved=latest_approval(run["id"],s["id"],row["criterion_id"]); default=approved if approved is not None else sme if sme is not None else row["proposed_score"]
+        st.markdown(f'<div class="section-card"><div class="criterion-head"><b>{row["name"]}</b><span class="score-chip">Weight {row["weight"]:g}%</span></div></div>',unsafe_allow_html=True)
+        with st.form(f"ap{s['id']}{row['criterion_id']}"):
+            c1,c2,c3,c4=st.columns([1,1,1,2]); c1.metric("AI",f"{row['proposed_score']:g}"); c2.metric("SME",f"{sme:g}" if sme is not None else "—"); final=c3.number_input("Final score *",0.0,float(row["max_score"]),float(default),.5,key=f"av{s['id']}{row['criterion_id']}"); rationale=c4.text_input("Final rationale",key=f"ar{s['id']}{row['criterion_id']}"); save=st.form_submit_button("Approve score")
+        if save:
+            if not approver.strip(): st.error("Enter the approver name.")
+            else: execute("INSERT INTO final_approvals(run_id,supplier_id,criterion_id,approver,approved_score,rationale,created_at) VALUES(?,?,?,?,?,?,?)",(run["id"],s["id"],row["criterion_id"],approver,final,rationale,now_iso())); audit(p["id"],run["id"],"FINAL_APPROVAL",f"{s['name']} {row['name']}: {final}"); st.rerun()
 
 
 def page_results() -> None:
@@ -700,13 +721,13 @@ def page_results() -> None:
     if not ranked and not excluded: st.info("No results are available."); return
     tabs=st.tabs(["Leaderboard","Spider Comparison","Score Differences","Compliance","Export"])
     with tabs[0]:
-        data=[{"Rank":r["Rank"],"Supplier":r["Alias"] if p["blind_mode"] else r["Supplier"],"Approved Score":round(r["Absolute Score"],2),"PPI":round(r["PPI"],2),"Submission":r["Submission"],"Experience":r["Experience"],"Compliance":"Pending" if r["Pending Compliance"] else "Eligible"} for r in ranked]
+        data=[{"Rank":r["Rank"],"Supplier":r["Supplier"],"Approved Score":round(r["Absolute Score"],2),"PPI":round(r["PPI"],2),"Submission":r["Submission"],"Experience":r["Experience"],"Compliance":"Pending" if r["Pending Compliance"] else "Eligible"} for r in ranked]
         st.dataframe(pd.DataFrame(data),use_container_width=True,hide_index=True)
         with st.expander("How was the ranking calculated?"):
-            st.write("Suppliers are sorted by higher PPI, earlier submission date, higher historical experience rating, and finally supplier name ascending. Full precision is used internally.")
+            st.markdown("**Ranking method**  \n1. Calculate each supplier’s approved weighted score.  \n2. For every criterion, identify the highest valid score as the peer benchmark.  \n3. Convert each supplier’s criterion score to a relative percentage of that benchmark.  \n4. Calculate PPI as the weighted average of those relative percentages.  \n5. Sort by **higher PPI**, then **earlier submission date**, then **higher historical experience rating**, and finally **supplier name A–Z**.  \n6. Assign ranks 1, 2, 3… only after this stable sort. Calculations use full precision; rounding is display-only.")
         if excluded: st.error("Excluded from Ranking"); st.dataframe(pd.DataFrame(excluded),hide_index=True,use_container_width=True)
     with tabs[1]:
-        choices={r["Alias"] if p["blind_mode"] else r["Supplier"]:r for r in ranked}; selected=st.multiselect("Compare two to four suppliers",list(choices),default=list(choices)[:min(3,len(choices))],max_selections=4)
+        choices={r["Supplier"]:r for r in ranked}; selected=st.multiselect("Select suppliers to compare",list(choices),default=list(choices)[:min(4,len(choices))],help="You can compare all eligible suppliers. For readability, five or fewer usually works best.")
         fig=go.Figure()
         for name in selected:
             r=choices[name]; cats=[v["name"] for v in r["criteria"]]; vals=[v["score"]/v["max"]*100 for v in r["criteria"]]; fig.add_trace(go.Scatterpolar(r=vals+[vals[0]],theta=cats+[cats[0]],fill="toself",name=name))
@@ -714,7 +735,7 @@ def page_results() -> None:
     with tabs[2]:
         rows=[]
         for r in ranked:
-            for v in r["criteria"]: rows.append({"Supplier":r["Alias"] if p["blind_mode"] else r["Supplier"],"Criterion":v["name"],"AI":v["ai"],"Final":v["score"],"Difference":v["score"]-v["ai"]})
+            for v in r["criteria"]: rows.append({"Supplier":r["Supplier"],"Criterion":v["name"],"AI":v["ai"],"Final":v["score"],"Difference":v["score"]-v["ai"]})
         df=pd.DataFrame(rows)
         if not df.empty: st.plotly_chart(px.bar(df,x="Criterion",y="Difference",color="Supplier",barmode="group",title="AI-to-final score adjustments"),use_container_width=True); st.dataframe(df,use_container_width=True,hide_index=True)
     with tabs[3]:
@@ -752,7 +773,7 @@ def page_help() -> None:
     with st.expander("Human Review"):
         st.write("AI Proposed → SME Reviewed → Procurement Approved. Earlier values remain preserved. Procurement-approved values control the official result.")
     with st.expander("Knock-Out Rules"):
-        st.write("The AI returns PASS, FAIL, UNCLEAR, or NOT FOUND. A potential failure pauses normal ranking and requires SME confirmation. Only a confirmed non-compliant result excludes a supplier.")
+        st.markdown("Knock-out rules represent **non-negotiable eligibility conditions**, such as required security certification, data residency, budget ceiling, or delivery deadline. The AI performs a preliminary evidence check and returns **PASS**, **FAIL**, **UNCLEAR**, or **NOT FOUND**, together with a page-linked explanation. Any result other than PASS is routed to the assigned SME. The SME must confirm non-compliance or override the result with a comment. A supplier is excluded from the final leaderboard only after a confirmed non-compliant decision; ambiguous or missing evidence never causes an automatic final rejection.")
     with st.expander("Demo Mode"):
         st.write("Demo Mode loads bundled fictional proposals and uses disclosed deterministic sample evaluation logic. It makes no external LLM request.")
     with st.expander("Privacy and Limitations"):
@@ -764,11 +785,12 @@ def page_help() -> None:
 init_db()
 if "mode" not in st.session_state: st.session_state.mode="Demo Mode"
 with st.sidebar:
-    st.markdown(f'<div class="brand"><h1>{APP_NAME}</h1><p>See every proposal clearly.</p></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="brand-shell"><div class="logo-mark">◈</div><div><div class="brand-title">{APP_NAME}</div><div class="brand-sub">See every proposal clearly.</div></div></div>',unsafe_allow_html=True)
     st.session_state.mode=st.selectbox("Evaluation Mode",["Demo Mode","Live AI Evaluation"],index=0 if st.session_state.mode=="Demo Mode" else 1)
     if st.session_state.mode=="Live AI Evaluation":
         st.session_state.provider=st.selectbox("Provider",PROVIDERS,index=PROVIDERS.index(st.session_state.get("provider","Cohere")) if st.session_state.get("provider","Cohere") in PROVIDERS else 4)
-        st.session_state.model=st.text_input("Model",st.session_state.get("model",DEFAULT_MODELS[st.session_state.provider]))
+        model_options=MODEL_OPTIONS.get(st.session_state.provider,[DEFAULT_MODELS[st.session_state.provider]])
+        st.session_state.model=st.selectbox("Model *",model_options,index=0,key=f"model_{st.session_state.provider}")
         st.session_state.api_key=st.text_input("API Key",type="password",value=st.session_state.get("api_key",""))
         if st.session_state.provider in ("Azure OpenAI","Custom OpenAI-compatible"):
             st.session_state.endpoint=st.text_input("API Endpoint",st.session_state.get("endpoint",""))
