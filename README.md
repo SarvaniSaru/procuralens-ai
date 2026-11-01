@@ -1,6 +1,6 @@
 # ProcuraLens
 
-**From proposal evidence to confident procurement decisions.**
+**Scores you can trace, rankings you can trust.**
 
 ProcuraLens is a Streamlit classroom project for evidence-grounded PDF proposal evaluation, human review, deterministic peer benchmarking, and explainable supplier ranking.
 

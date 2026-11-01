@@ -1,5 +1,5 @@
 """ProcuraLens
-From proposal evidence to confident procurement decisions.
+Scores you can trace, rankings you can trust.
 
 Single-file Streamlit application for PDF-only RFP evaluation.
 Run locally: streamlit run ProcureLens.py
@@ -34,7 +34,7 @@ except Exception:
     fitz = None
 
 APP_NAME = "ProcuraLens"
-TAGLINE = "From proposal evidence to confident procurement decisions."
+TAGLINE = "Scores you can trace, rankings you can trust."
 APP_ROOT = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("PROCURELENS_DB", str(APP_ROOT / "data" / "procuralens.db")))
 SAMPLE_DIR = Path(__file__).resolve().parent / "sample_rfps"
@@ -67,7 +67,7 @@ h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:
 .hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#102447 0%,#0f647b 55%,#18a9a8 100%);color:white;border-radius:22px;padding:1.65rem 2rem;margin-bottom:1rem;box-shadow:0 18px 45px #152b4a26}.hero:after{content:'';position:absolute;width:280px;height:280px;border:1px solid #fff3;border-radius:50%;right:-75px;top:-150px;box-shadow:0 0 0 34px #ffffff0a,0 0 0 68px #ffffff08}.hero h1{font-size:2.05rem;margin:0}.hero p{font-size:1rem;margin:.42rem 0 0;opacity:.91}
 .workflow-card{height:166px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem;box-shadow:0 7px 22px #233d5d0b;display:flex;flex-direction:column;justify-content:space-between;margin:.35rem 0}.workflow-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px #233d5d18;border-color:#9bd4d8}.workflow-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:18px}.workflow-card h3{font-size:1.15rem;margin:.5rem 0 .25rem}.workflow-card p{font-size:.96rem;font-weight:500;color:var(--muted);line-height:1.5;margin:0}.step-no{font-size:.68rem;font-weight:700;color:#8290a2;letter-spacing:.08em}
 .section-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:1rem 1.1rem;margin:.65rem 0;box-shadow:0 6px 18px #1d39570a}.supplier-banner{background:linear-gradient(90deg,#edf7f8,#f6f4ff);border-left:5px solid var(--teal);border-radius:12px;padding:.75rem 1rem;margin:1rem 0 .65rem}.criterion-head{display:flex;justify-content:space-between;gap:1rem;align-items:center}.score-chip{background:#eaf6f6;color:#096d72;padding:.25rem .65rem;border-radius:999px;font-weight:700;font-size:.94rem}.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin:.55rem 0}.mini-stat{background:#f6f8fc;border:1px solid #e9eef5;border-radius:10px;padding:.45rem .55rem;font-size:.9rem;color:#607087}.mini-stat b{display:block;color:#21334d;font-size:.9rem}.bullet-good li::marker{color:var(--good)}.bullet-gap li::marker{color:var(--warn)}.reference-box{background:#f7f9fc;border-left:3px solid var(--violet);padding:.65rem .8rem;border-radius:8px;margin:.45rem 0;overflow-wrap:anywhere;word-break:normal;white-space:normal}.required{color:var(--bad);font-weight:800}
-.stepbar{background:#fff;border:1px solid var(--line);border-radius:13px;padding:.62rem .85rem;margin-bottom:.9rem;color:#64768b;font-size:.94rem;box-shadow:0 4px 14px #1c36530a}.stButton>button{border-radius:10px;font-weight:700}.stTextArea textarea{min-height:78px!important}.compact-comment textarea{min-height:58px!important}.stMetric{background:#fff;border:1px solid var(--line);padding:.55rem .7rem;border-radius:13px}.stMetric label{font-size:.76rem!important}.stMetric [data-testid="stMetricValue"]{font-size:1.16rem!important;font-family:'Manrope',sans-serif}div[data-testid="stExpander"]{background:#fff;border-radius:13px;border-color:var(--line)}
+.stepbar{background:#fff;border:1px solid var(--line);border-radius:13px;padding:.62rem .85rem;margin-bottom:.9rem;color:#64768b;font-size:.94rem;box-shadow:0 4px 14px #1c36530a}.stButton>button{border-radius:10px;font-weight:700}.stTextArea textarea{min-height:68px!important}div[data-testid="stForm"]{padding:.6rem .85rem!important;margin-bottom:.4rem}div[data-testid="stForm"] [data-testid="stVerticalBlock"]{gap:.4rem!important}div[data-testid="stForm"] label p{font-size:.82rem!important;margin-bottom:0!important}div[data-testid="stForm"] [data-testid="stNumberInput"] input,div[data-testid="stForm"] [data-testid="stTextInput"] input{padding-top:.3rem;padding-bottom:.3rem}.compact-comment textarea{min-height:58px!important}.stMetric{background:#fff;border:1px solid var(--line);padding:.55rem .7rem;border-radius:13px}.stMetric label{font-size:.76rem!important}.stMetric [data-testid="stMetricValue"]{font-size:1.16rem!important;font-family:'Manrope',sans-serif}div[data-testid="stExpander"]{background:#fff;border-radius:13px;border-color:var(--line)}
 [data-testid="stDataFrame"]{border:1px solid var(--line);border-radius:14px;overflow:hidden}.small-note{font-size:.92rem;color:var(--muted)}
 .stMarkdown p,.stCaption,div[data-testid="stText"]{font-size:1rem!important;line-height:1.55}.stMarkdown li{font-size:1rem;line-height:1.55}
 [data-testid="stSidebar"] label{font-size:.96rem!important;font-weight:650!important;color:#243852!important}
@@ -76,6 +76,43 @@ h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:
 [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked){background:linear-gradient(90deg,#e3f5f5,#eef1ff);border-color:#4ea7ad;color:#095e67!important}
 .stTextInput label,.stTextArea label,.stSelectbox label,.stNumberInput label,.stDateInput label,.stFileUploader label{font-size:1rem!important;font-weight:650!important}
 
+
+/* ---- UI enhancement layer ---- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.block-container>div{animation:fadeUp .35s ease both}
+.hero{background:linear-gradient(115deg,#0e1f3f 0%,#0f5f7a 52%,#19b0ad 100%);padding:2rem 2.3rem}
+.hero h1{font-size:2.3rem;font-weight:800;letter-spacing:-.035em;color:#fff!important}
+.hero p{font-size:1.12rem;font-weight:500;opacity:.95;max-width:720px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;position:relative;z-index:1}
+.hero-chip{background:#ffffff1f;border:1px solid #ffffff3d;backdrop-filter:blur(4px);border-radius:999px;padding:.28rem .8rem;font-size:.82rem;font-weight:600;color:#fff}
+.workflow-card{position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s}
+.workflow-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--teal),var(--violet));opacity:.85}
+.workflow-card:hover{transform:translateY(-3px)}
+.workflow-icon{box-shadow:0 6px 14px #00000020;font-weight:800}
+.section-card{transition:box-shadow .18s,transform .18s}.section-card:hover{box-shadow:0 10px 26px #1d39571a;transform:translateY(-1px)}
+.score-chip{background:linear-gradient(135deg,#e3f6f6,#eef0ff);border:1px solid #cfe9ea}
+.stepbar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;padding:.5rem .65rem}
+.step-pill{padding:.28rem .75rem;border-radius:999px;font-size:.86rem;font-weight:600;color:#64768b;background:#f3f6fb;border:1px solid transparent}
+.step-pill.active{color:#fff;background:linear-gradient(120deg,#0f8b8d,#2a6fc9);box-shadow:0 4px 12px #0f8b8d44}
+.step-sep{color:#b3bfce;font-weight:700}
+.stButton>button,.stFormSubmitButton>button{transition:transform .15s,box-shadow .15s,border-color .15s}
+.stButton>button:hover,.stFormSubmitButton>button:hover{transform:translateY(-1px);box-shadow:0 6px 14px #1c365322;border-color:var(--teal);color:var(--teal)}
+.stButton>button[kind="primary"],.stFormSubmitButton>button[kind="primary"]{background:linear-gradient(120deg,#0f8b8d,#2a6fc9);border:none;color:#fff;box-shadow:0 6px 16px #0f8b8d40}
+.stButton>button[kind="primary"]:hover,.stFormSubmitButton>button[kind="primary"]:hover{color:#fff;filter:brightness(1.07)}
+.stMetric{border-left:4px solid var(--teal);box-shadow:0 4px 14px #1c36530a;transition:box-shadow .18s}.stMetric:hover{box-shadow:0 8px 20px #1c365318}
+div[data-testid="stExpander"]{box-shadow:0 3px 10px #1c36530a;transition:box-shadow .18s,border-color .18s}div[data-testid="stExpander"]:hover{border-color:#9bd4d8;box-shadow:0 6px 16px #1c365314}
+div[data-testid="stForm"]{background:#fff;border:1px solid var(--line)!important;border-radius:15px;box-shadow:0 4px 14px #1c36530a}
+div[data-baseweb="input"],div[data-baseweb="select"]>div,.stTextArea textarea{border-radius:10px!important}
+div[data-baseweb="input"]:focus-within,.stTextArea textarea:focus{border-color:var(--teal)!important;box-shadow:0 0 0 2px #0f8b8d26!important}
+button[data-baseweb="tab"]{font-weight:600;font-family:'Manrope',sans-serif}
+button[data-baseweb="tab"][aria-selected="true"]{color:var(--teal)}
+[data-testid="stSidebar"] div[role="radiogroup"] label>div:first-child{display:none}
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked){background:linear-gradient(120deg,#e3f6f6,#edeaff);border-color:#7cc7cb;box-shadow:inset 4px 0 0 var(--teal)}
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p{font-weight:700;color:#0b6b70}
+.brand-shell{border-bottom:1px solid var(--line);margin-bottom:.8rem}
+h2{font-weight:800;color:var(--navy)}
+h3{color:var(--navy)}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:9px}::-webkit-scrollbar-thumb:hover{background:#9fb3c8}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -456,7 +493,14 @@ def title(text: str, subtitle: str="") -> None:
 
 
 def stepbar() -> None:
-    st.markdown('<div class="stepbar">Setup &nbsp;›&nbsp; Criteria &nbsp;›&nbsp; Upload &nbsp;›&nbsp; AI Evaluation &nbsp;›&nbsp; SME Review &nbsp;›&nbsp; Approval &nbsp;›&nbsp; Results</div>',unsafe_allow_html=True)
+    labels=["Setup","Criteria","Upload","AI Evaluation","SME Review","Approval","Results"]
+    page_map={"Project Setup":"Setup","Evaluation Criteria":"Criteria","Upload Proposals":"Upload","AI Evaluation":"AI Evaluation","SME Review":"SME Review","Final Approval":"Approval","Results & Comparison":"Results"}
+    current=page_map.get(globals().get("page"),"")
+    parts=[]
+    for i,l in enumerate(labels):
+        if i: parts.append('<span class="step-sep">›</span>')
+        parts.append(f'<span class="step-pill{" active" if l==current else ""}">{l}</span>')
+    st.markdown('<div class="stepbar">'+"".join(parts)+'</div>',unsafe_allow_html=True)
 
 
 def display_name(s: sqlite3.Row, project: sqlite3.Row, reveal: bool=False) -> str:
@@ -486,7 +530,7 @@ def criterion_detail(row: sqlite3.Row) -> dict:
 
 # --------------------------- Pages ---------------------------
 def page_home() -> None:
-    st.markdown(f'<div class="hero"><h1>{APP_NAME}</h1><p>{TAGLINE}</p></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="hero"><h1>{APP_NAME}</h1><p>{TAGLINE}</p><div class="hero-chips"><span class="hero-chip">📄 Page-linked evidence</span><span class="hero-chip">🧑‍⚖️ Human-reviewed scores</span><span class="hero-chip">📊 Deterministic ranking</span></div></div>',unsafe_allow_html=True)
     p=current_project(); run=latest_run(p["id"]) if p else None
     c1,c2,c3=st.columns(3)
     c1.metric("Current project",p["name"] if p else "Not created")
@@ -542,17 +586,29 @@ def page_criteria() -> None:
     if not p: st.warning("Create a project first."); return
     rows=q("SELECT * FROM criteria WHERE project_id=? ORDER BY id",(p["id"],))
     total=sum(r["weight"] for r in rows if r["active"]); st.metric("Active weight total",f"{total:.1f}%",delta="Ready" if abs(total-100)<=WEIGHT_TOLERANCE else "Must equal 100%")
+    default_guidance="0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement"
     for r in rows:
-        with st.expander(f"{r['name']} · {r['area']} · {r['weight']:g}%",expanded=False):
-            with st.form(f"criterion_{r['id']}"):
-                name=st.text_input("Name",r["name"]); desc=st.text_area("Description",r["description"] or "")
-                c1,c2,c3=st.columns(3); area=c1.selectbox("SME area",SME_AREAS,index=SME_AREAS.index(r["area"]) if r["area"] in SME_AREAS else 0); weight=c2.number_input("Weight %",0.0,100.0,float(r["weight"]),.5); maximum=c3.number_input("Maximum score",1.0,100.0,float(r["max_score"]),1.0)
-                c1,c2,c3=st.columns(3); minimum=c1.number_input("Minimum acceptable",0.0,float(maximum),min(float(r["min_score"]),float(maximum)),.5); critical=c2.checkbox("Critical criterion",bool(r["critical"])); active=c3.checkbox("Active",bool(r["active"]))
-                guidance=st.text_area("Scoring guidance",r["guidance"] or "0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement")
-                a,b=st.columns([1,1]); update=a.form_submit_button("Update"); delete=b.form_submit_button("Delete")
-            if update:
-                execute("UPDATE criteria SET name=?,description=?,area=?,weight=?,max_score=?,min_score=?,guidance=?,critical=?,active=? WHERE id=?",(name,desc,area,weight,maximum,minimum,guidance,int(critical),int(active),r["id"])); audit(p["id"],None,"CRITERION_UPDATED",name); flash("Criterion updated successfully."); st.rerun()
-            if delete: execute("DELETE FROM criteria WHERE id=?",(r["id"],)); flash("Criterion removed."); st.rerun()
+        # Compact two-row layout so 3+ criteria fit on one screen.
+        with st.form(f"criterion_{r['id']}"):
+            n1,n2,n3,n4,n5=st.columns([3,1.4,1,1,1])
+            name=n1.text_input("Name",r["name"])
+            area=n2.selectbox("SME area",SME_AREAS,index=SME_AREAS.index(r["area"]) if r["area"] in SME_AREAS else 0)
+            weight=n3.number_input("Weight %",0.0,100.0,float(r["weight"]),.5)
+            maximum=n4.number_input("Max score",1.0,100.0,float(r["max_score"]),1.0)
+            minimum=n5.number_input("Min acceptable",0.0,float(maximum),min(float(r["min_score"]),float(maximum)),.5)
+            d1,d2,d3=st.columns([3,3,1.6])
+            desc=d1.text_area("Description",r["description"] or "",height=68)
+            guidance=d2.text_area("Scoring guidance",r["guidance"] or default_guidance,height=68)
+            with d3:
+                k1,k2=st.columns(2)
+                critical=k1.checkbox("Critical",bool(r["critical"]),help="Critical criterion")
+                active=k2.checkbox("Active",bool(r["active"]))
+                b1,b2=st.columns(2)
+                update=b1.form_submit_button("Save",use_container_width=True)
+                delete=b2.form_submit_button("Delete",use_container_width=True)
+        if update:
+            execute("UPDATE criteria SET name=?,description=?,area=?,weight=?,max_score=?,min_score=?,guidance=?,critical=?,active=? WHERE id=?",(name,desc,area,weight,maximum,minimum,guidance,int(critical),int(active),r["id"])); audit(p["id"],None,"CRITERION_UPDATED",name); flash("Criterion updated successfully."); st.rerun()
+        if delete: execute("DELETE FROM criteria WHERE id=?",(r["id"],)); flash("Criterion removed."); st.rerun()
     with st.expander("Add criterion"):
         with st.form("add_criterion"):
             name=st.text_input("Criterion name *")
@@ -812,7 +868,7 @@ def page_help() -> None:
 init_db()
 if "mode" not in st.session_state: st.session_state.mode="Demo Mode"
 with st.sidebar:
-    st.markdown(f'<div class="brand-shell"><div class="logo-mark">◈</div><div><div class="brand-title">{APP_NAME}</div><div class="brand-sub">See every proposal clearly.</div></div></div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="brand-shell"><div class="logo-mark">◈</div><div><div class="brand-title">{APP_NAME}</div><div class="brand-sub">Evidence-grounded procurement</div></div></div>',unsafe_allow_html=True)
     st.session_state.mode=st.selectbox("Evaluation Mode",["Demo Mode","Live AI Evaluation"],index=0 if st.session_state.mode=="Demo Mode" else 1)
     if st.session_state.mode=="Live AI Evaluation":
         st.session_state.provider=st.selectbox("Provider",PROVIDERS,index=PROVIDERS.index(st.session_state.get("provider","Cohere")) if st.session_state.get("provider","Cohere") in PROVIDERS else 4)
