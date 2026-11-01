@@ -35,6 +35,8 @@ except Exception:
     fitz = None
 
 APP_NAME = "ProcuraLens"
+DEFAULT_GUIDANCE = "0 - no answer; 5 - meets criteria; 10 - exceptional"
+LEGACY_GUIDANCE = ("0 no answer; 5 meets; 10 exceptional",)
 TAGLINE = "Scores you can trace, rankings you can trust."
 APP_ROOT = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("PROCURELENS_DB", str(APP_ROOT / "data" / "procuralens.db")))
@@ -60,7 +62,7 @@ st.set_page_config(page_title=APP_NAME, page_icon="◈", layout="wide", initial_
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
-:root{--ink:#152238;--navy:#14213d;--teal:#0f8b8d;--cyan:#21b8c7;--gold:#e4aa3a;--violet:#6f5bd3;--bg:#f3f6fb;--card:#fff;--line:#dfe7f0;--muted:#66778d;--good:#2f936b;--warn:#d28a19;--bad:#c75050}
+:root{--ink:#152238;--navy:#14213d;--teal:#0f8b8d;--cyan:#21b8c7;--gold:#e4aa3a;--violet:#6f5bd3;--bg:#f3f6fb;--card:#fff;--line:#c9d6e6;--muted:#66778d;--good:#2f936b;--warn:#d28a19;--bad:#c75050}
 html,body,[class*="css"]{font-family:'DM Sans',sans-serif}.stApp{background:radial-gradient(circle at 85% 0%,#e8f7f8 0,transparent 28%),var(--bg);color:var(--ink)}
 h1,h2,h3,.brand-title{font-family:'Manrope',sans-serif!important;letter-spacing:-.025em}.block-container{padding-top:3.75rem!important;max-width:1420px;padding-bottom:3rem}
 [data-testid="stSidebar"]{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-right:1px solid var(--line)}[data-testid="stSidebar"]>div:first-child{padding-top:.35rem!important}
@@ -115,6 +117,26 @@ h2{font-weight:800;color:var(--navy)}
 h3{color:var(--navy)}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#c5d2e0;border-radius:9px}::-webkit-scrollbar-thumb:hover{background:#9fb3c8}
 .rubric-box{background:#fbf8ee;border:1px solid #f0e3b8;border-left:4px solid var(--gold);border-radius:10px;padding:.55rem .85rem;margin:.5rem 0;font-size:.92rem;color:#5b4a1c;white-space:pre-line;line-height:1.5}
+
+/* ---- Outlines ---- */
+div[data-baseweb="input"],div[data-baseweb="textarea"],div[data-baseweb="select"]>div{border:1.5px solid #b4c3d6!important;background:#fff!important;border-radius:10px!important;box-shadow:0 1px 2px #1c36530d;transition:border-color .15s,box-shadow .15s}
+div[data-baseweb="base-input"]{border:none!important;background:transparent!important}
+div[data-baseweb="input"]:hover,div[data-baseweb="textarea"]:hover,div[data-baseweb="select"]>div:hover{border-color:#7cc7cb!important}
+div[data-baseweb="input"]:focus-within,div[data-baseweb="textarea"]:focus-within,div[data-baseweb="select"]>div:focus-within{border-color:var(--teal)!important;box-shadow:0 0 0 3px #0f8b8d24!important}
+.stTextArea textarea:focus{box-shadow:none!important}
+.stButton>button[kind="secondary"],.stFormSubmitButton>button[kind="secondary"]{border:1.5px solid #b4c3d6;background:#fff}
+div[data-testid="stForm"]{border:1.5px solid #c1cfe0!important}
+div[data-testid="stExpander"]{border:1.5px solid #c1cfe0!important}
+div[data-testid="stExpander"] details,div[data-testid="stExpander"]{border-radius:13px}
+div[data-testid="stVerticalBlockBorderWrapper"]{border:1.5px solid #c1cfe0!important;border-radius:14px}
+.stMetric{border:1.5px solid #c1cfe0;border-left:4px solid var(--teal)}
+.section-card,.workflow-card,.stepbar{border:1.5px solid #c1cfe0}
+.reference-box{border:1px solid #d8d3f3;border-left:3px solid var(--violet)}
+.mini-stat{border:1px solid #cfdae8}
+[data-testid="stDataFrame"]{border:1.5px solid #c1cfe0}
+[data-testid="stFileUploaderDropzone"]{border:1.5px dashed #8fb5ba!important;background:#fbfdff;border-radius:12px}
+[data-testid="stSidebar"] div[role="radiogroup"] label{border:1.5px solid #cdd9e8}
+[data-testid="stCheckbox"] label>span:first-child{border:1.5px solid #8fa4bb}
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -192,6 +214,7 @@ def init_db() -> None:
       event_type TEXT, detail TEXT, created_at TEXT NOT NULL
     );
     """)
+    con.executemany("UPDATE criteria SET guidance=? WHERE guidance=?",[(DEFAULT_GUIDANCE,g) for g in LEGACY_GUIDANCE])
     con.commit(); con.close()
 
 
@@ -235,11 +258,11 @@ def latest_run(project_id: str) -> Optional[sqlite3.Row]:
 def seed_defaults(project_id: str) -> None:
     if q("SELECT id FROM criteria WHERE project_id=?",(project_id,)): return
     defaults=[
-      ("Technical Capability","Architecture, integration, scalability, maintainability","IT",30,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
-      ("Implementation Plan","Timeline, milestones, staffing, delivery risks","IT",20,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
-      ("Commercial Value","Pricing clarity, assumptions, total cost","Finance",20,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
-      ("Security & Compliance","Controls, privacy, certifications, auditability","Security",20,10,6,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",1),
-      ("Support & Experience","Support model, similar projects, references","Procurement",10,10,5,"0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",0),
+      ("Technical Capability","Architecture, integration, scalability, maintainability","IT",30,10,5,DEFAULT_GUIDANCE,0),
+      ("Implementation Plan","Timeline, milestones, staffing, delivery risks","IT",20,10,5,DEFAULT_GUIDANCE,0),
+      ("Commercial Value","Pricing clarity, assumptions, total cost","Finance",20,10,5,DEFAULT_GUIDANCE,0),
+      ("Security & Compliance","Controls, privacy, certifications, auditability","Security",20,10,6,DEFAULT_GUIDANCE,1),
+      ("Support & Experience","Support model, similar projects, references","Procurement",10,10,5,DEFAULT_GUIDANCE,0),
     ]
     con=db()
     con.executemany("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",[(project_id,*r) for r in defaults])
@@ -588,7 +611,7 @@ def page_criteria() -> None:
     if not p: st.warning("Create a project first."); return
     rows=q("SELECT * FROM criteria WHERE project_id=? ORDER BY id",(p["id"],))
     total=sum(r["weight"] for r in rows if r["active"]); st.metric("Active weight total",f"{total:.1f}%",delta="Ready" if abs(total-100)<=WEIGHT_TOLERANCE else "Must equal 100%")
-    default_guidance="0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement"
+    default_guidance=DEFAULT_GUIDANCE
     for r in rows:
         # Compact two-row layout so 3+ criteria fit on one screen.
         with st.form(f"criterion_{r['id']}"):
@@ -619,7 +642,7 @@ def page_criteria() -> None:
             area=c1.selectbox("SME area *",SME_AREAS)
             weight=c2.number_input("Weight % *",0.0,100.0,0.0,.5)
             maximum=c3.number_input("Maximum score *",1.0,100.0,10.0)
-            guidance=st.text_area("Scoring guidance *","0 - No response or unacceptable\n2 - Major gaps\n4 - Partially meets the requirement\n6 - Meets the requirement\n8 - Strong, well-evidenced response\n10 - Exceptional and exceeds the requirement",height=170)
+            guidance=st.text_area("Scoring guidance *",DEFAULT_GUIDANCE,height=80)
             critical=st.checkbox("Critical criterion",help="Critical criteria receive heightened review; mandatory rejection logic should be configured as a knock-out rule.")
             add=st.form_submit_button("Add criterion",type="primary")
         if add and name.strip(): execute("INSERT INTO criteria(project_id,name,description,area,weight,max_score,min_score,guidance,critical,active) VALUES(?,?,?,?,?,?,?,?,?,1)",(p["id"],name,desc,area,weight,maximum,0,guidance,int(critical))); flash("Criterion added successfully."); st.rerun()
